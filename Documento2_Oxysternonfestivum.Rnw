@@ -1,0 +1,1455 @@
+\documentclass[spanish,12pt]{article}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage[shiftmargins]{vmargin}
+\setpapersize{USletter}
+%%\setmarginsrb{left}{top}{right}{bottom}{headhgt}{headsep}{foothgt}{footskip}
+\setmarginsrb{2cm}{3cm}{3cm}{2cm}{0.5cm}{0.5cm}{0.5cm}{0.5cm}
+
+\usepackage[authoryear,sort]{natbib}
+
+
+\title{Distribución, Abundancia y Biomasa de Oxysternon festivum (Linné) en Venezuela}
+\author{JR Ferrer-Paris, C Lozano, A Cardozo-Urdaneta \& A Thomas}
+\date{\today}
+
+\begin{document}
+\maketitle
+\bibliographystyle{BIBDIR/custom-bib/tesis}
+
+\emph{Oxysternon festivum} es un escarabajo de habitos copro/necrófagos de la subfamilia Sca\-ra\-baei\-nae (Coleoptera: Scarabaeidae) que se encuentra distribuido entre Venezuela, las Guayanas y Brasil, con una subespecie endémica de la isla de Trinidad. \emph{O. festivum} reune varias características de una especie indicadora de calidad ambiental o tipo de hábitat: por su tamaño mediano y coloración vistosa resulta fácil de identificar, es fácil de capturar con trampas cebadas y puede llegar a ser localmente abundante en habitat boscosos. En este trabajo utilizamos datos de literatura, museos y de un muestreo sistemático en Venezuela para estudiar como están correlacionadas la presencia, abundancia y tamaño corporal de la especie con diferentes variables ambientales a fin de calibrar sus cualidades como especie indicadora. 
+
+Primero extraemos registros de presencia a partir de referencias en la literatura y una colección nacional y utilizamos un modelo de máxima entropía para estimar idoneidad de hábitat. Utilizamos los datos de la iniciativa para el mapeo de la biodiversidad neotropical en Venezuela en 2006, 2009 y 2010 para evaluar este modelo y calcular si la abundancia y biomasa de los individuos capturados están correlacionadas con la idoneidad. Exploramos luego la importancia de varias variables en el modelo de idoneidad y su correlación con la abundancia y biomasa.
+
+
+\section{Introducción}
+\emph{O. festivum festivum} (Linné, 1767) es una especie copro/necrófaga, de habitos diurnos y activa durante todo el año. Se ha reportado en bosques húmedos y semi-humedos (mesic forest), y sabanas del norte de Sudamérica \citep{EdZi04}.%\marginpar{\tiny Revisar referencias de Feer 2000 y Forsyth \& Gill 1993}
+
+\section{Materiales y Métodos}
+
+Utilizamos datos de revisión bibliográfica y la colección del MIZA\marginpar{\tiny revisar la colección de MALUZ y MBLUZ}  para ajustar un modelo de nicho ecológico basado en Máxima Entropía. %\marginpar{\tiny Basado en la contribución de Arlene, con modificaciones de JR}
+
+Luego utilizamos datos de las colectas de NeoMapas para evaluar el modelo (datos de detección/no-detección) y revisamos la correlación de la idoneidad de habitat estimada por el modelo con datos de abundancia por trampa y el tamaño corporal de los ejemplares capturados. %\marginpar{\tiny Basado en la contribución de Arianna, falta completar mediciones}
+
+\subsection{Área de estudio}
+
+Definimos el área de estudio entre la longitud \Sexpr{bbox(rbios)[1,1]} y \Sexpr{bbox(rbios)[1,2]} y la latitud \Sexpr{bbox(rbios)[2,1]} y \Sexpr{bbox(rbios)[2,2]}. Dentro de esta área se encuentra el área de distribución propuesta por \citet{EdZi04} y el universo muestral de NeoMapas \citep{FerrerParisNeoMapas}. 
+
+\setkeys{Gin}{width=.8\textwidth}
+<<echo=false,fig=true,width=7,height=5>>=
+plot(rbios,1,main="Cobertura arborea")
+plot(Oshp,add=T,lwd=3)
+ plot(CNEB,add=T,border="maroon")
+@ 
+
+
+\subsubsection{Variables ambientales}
+
+Fuentes de datos: variables bioclimáticas y porcentaje de cobertura arbórea.\marginpar{\tiny Incluir detalles de las variables y referencias}
+
+\subsection{Datos de distribución}
+
+Datos de GBIF según país:
+
+%GBIF.org (28th August 2015) GBIF Occurrence Download \href{http://doi.org/10.15468/dl.xiqpwq}{http://doi.org/10.15468/dl.xiqpwq}
+
+<<fig=false,echo=false>>=
+
+##plot(scrb.gb)
+##plot(Oshp,add=T)
+##points(subset(scrb.gb,grepl("festivum",scientificname)),col=2,pch=19)
+table(subset(scrb.gb@data,grepl("festivum",scientificname))$country)
+##points(subset(oxyf.gb,grepl("festivum",scientificName)),col=4)
+##subset(scrb.gb@data,countrycode %in% "CO" & grepl("festivum",scientificname))
+
+unique(subset(scrb.gb@data,countrycode %in% "CO" & grepl("festivum",scientificname) & decimallongitude < -68)[,c("locality","decimallatitude","decimallongitude","issue","eventdate","basisofrecord","institutioncode","gbifid")])
+
+@ 
+
+
+Lista de referencias consultadas, verificar datos sobre la especie.\marginpar{\tiny Consultar con Ada sobre le avance en la revisión de la literatura de Scarabaeinae en Venezuela, tomar en cuenta aporte de Jorge y Bleidis.}
+
+\small
+Verificar referencias:
+<<Referencias,echo=false,results=tex>>=
+
+cat(sprintf(" %1$s: \\citep{%1$s}; ",unique(scrb.cneb$cdg_ref)))
+@ 
+.\normalsize
+
+Referencias a \emph{O. festivum} en la literatura: \Sexpr{length(unique(subset(scrb.BDV,cdg_taxon %in% "SCB00033-00007")[,"loc"]))} localidades. %(circulos negros en el mapa)
+  Localidades según la revisión de la colección del MIZA: \Sexpr{length(unique(scrb.MIZA[grep("Oxysternon f",scrb.MIZA$nombre),"localidad"]))}. %(circulos rojos en el mapa)
+  En MALUZ solo dos registros revisados por Cecilia: Venezuela Bolivar carretera Maripa- Jabillal reserva forestal El Caura entre Urbana - Puerto Cabello 02-05/XII/2005 y Venezuela Bolivar 85 km S.E. El Dorado 21 - 28/ III/1978, T. Borrego y E. Inciarte. %circulos verdes
+  
+  
+
+
+
+Ahora agregamos todas las localidades de colecta de scarabaeinae presente en la literatura (\Sexpr{  sum(Olt$pa)} presencias en rojo, de un total de \Sexpr{  length(Olt$pa)} localidades en negro):
+
+\setkeys{Gin}{width=.8\textwidth}
+<<echo=false,fig=true,width=8,height=5>>=
+par(mar=c(0,0,0,0))
+Olt <- subset(Olt,!is.na(lon))
+plot(rbios,1)
+plot(vzla,add=T)
+points(Olt[!Olt$pa,],pch=3,cex=.4)
+points(Olt[Olt$pa,],pch=1,cex=.6,col=2)
+@ 
+
+<<ConvexHull,echo=false,results=hide>>=
+xys <- Olt[Olt$pa,]
+xys <- xys[,1:2]
+set.seed(182943579)
+xys <- rbind(xys,xys+runif(nrow(xys)*2,-.73,.73))
+xys <- rbind(xys,xys+runif(nrow(xys)*2,-.73,.62))
+xys <- rbind(xys,xys+runif(nrow(xys)*2,-.62,.73))
+
+cH <- convHull(xys)
+rH <- predict(cH,rbios)
+##plot(rH)
+##points(lat~lon,xys)
+
+@ 
+
+\subsection{Captura de escarabajos de NeoMapas en 2006 y 2009}
+
+Colocar aquí detalles del muestreo de escarabajo de NeoMapas...\citep{FerrerEtAl2013}.
+
+<<>>=
+cebo.NM <- with(trmp.NM,
+                tapply(vst,list(NM, 
+                                tolower(cebo) %in% c("heces humanas","hh")),
+                       luq))
+mean(cebo.NM[,2]/rowSums(cebo.NM,na.rm=T))
+sd(cebo.NM[,2]/rowSums(cebo.NM,na.rm=T))
+table(subset(trmp.NM,vst %in% trmp.ll$vst[dtt])$cebo)
+
+@ 
+
+Las muestras están depositadas en la colección de invertebrados de NeoMapas (Iniciativa para el Mapeo de la Biodiversidad Neotropical), la cual forma parte de las Colecciones Biológicas del IVIC (nro. ``028'' en el Registro Nacional de Colecciones).
+
+%Accedemos directamente a los datos en la base de datos utilizando un archivo de acceso preconfigurado llamado \texttt{acceso.cnf} en la carpeta de inicio.  
+
+
+
+Identificaciones de Ángel Solis del INBio: ¿un ejemplar de \emph{O. festivum viridanum} en el sur del Lago? Se trata de \emph{O. conspicillatum} (fémures verdes). El resto  si corresponde con \emph{O. festivum festivum}. \marginpar{\tiny identidad del ejemplar verificada:\emph{O. conspicillatum}, ver \citep{EdZi04}.} Adicionalmente se detectó a \emph{O. ebeninum} pero eso lo vamos a dejar para otro artículo.
+
+
+Transectas con ejemplares, según A. Solis:\marginpar{\tiny Cecilia revisó las trampas que no había revisado Solis en NM41, NM05 (2009), NM29, NM28, etc.}
+\small
+
+<<echo=false>>=
+##tOxy
+##(trmp.ll@data[dtt,c("NM","vst")])
+
+rowSums(tOxy)
+
+##table(trmp.ll$NM[dtt])
+##length(table(trmp.ll$vst[dtt]))
+##dim(subset(fOxy,Oxysternon.festivum >0))
+##subset(fOxy,Oxysternon.festivum >0)
+##merge(table(sprintf("%02i",as.numeric(scrb.solis$NM))),table(trmp.NM$NM),by="Var1",all=T)
+@ 
+\normalsize 
+
+Distribución de las localidades muestreadas por NeoMapas (negro) y las detecciones (rojo) de la especie. \marginpar{\tiny Verificar georeferencia de puntos que se salen de las transectas.}
+
+\setkeys{Gin}{width=.5\textwidth}
+<<echo=false,fig=true,width=4,height=4.5>>=
+par(mar=c(0,0,0,0))
+plot(vzla,col="grey68",border="grey79")
+points(trmp.ll,pch=3,cex=.3)
+points(trmp.ll[dtt,],pch=1,cex=.4,col=2)
+@ 
+
+
+\subsubsection{Medición de ejemplares}
+
+Hasta ahora se han medido \Sexpr{nrow(mds)} ejemplares de un total de \Sexpr{sum(tOxy$Oxysternon.festivum)}. La mayoría de los ejemplares medidos provienen de la transecta NM39. \marginpar{\tiny Revisado con la lista que tiene Cecilia de los ejemplares medidos, efectivamente los ejemplares que faltan no han sido ubicados aún, corregir datos de mediciones o de las tablas de abundancia, especialmente en NM41}
+
+<<echo=false>>=
+t1 <- tOxy[,"Oxysternon.festivum",drop=F]
+t1 <- t1[t1>0,,drop=F]
+
+##t2 <- table(mds$NM,mds$sgrps)
+t2 <- table(mds$NM)
+rownames(t2) <- paste("NM",rownames(t2),sep="")
+
+tt <- merge(t1,t2,by.x="row.names",by.y="Var1",all=T)
+colnames(tt) <- c("NM","identificados","medidos")
+tt
+@ 
+
+En la mayoría de las transectas hay un predominio de hembras (55 al 70\% de los ejemplares colectados), y una proporción variable de los dos fenotipos de machos entre 0 y 30\% cada uno.
+
+<<trianglePlots,echo=false,fig=true>>=
+tr2 <- table(mds$NM,mds$sgrps)
+tr2 <- tr2/rowSums(tr2)
+plotrix::triax.plot(tr2)
+
+plotrix::triax.plot(tr2,label.points=F,col.axis="grey47",no.add=F)
+ plotrix::triax.points(tr2,label.points=T,col.axis=4,
+      col.symbols=2,bg.symbols="yellow")
+
+xdt <- table(mds$vst,mds$sgrps)
+##xdt[,1] <- xdt[,1]+0.1
+## proporción del fenotipo M2 transformación de la relación logarítmica centrada
+##clr(xdt)[,3]
+
+@ 
+
+alr muchos NA e infs
+clr e ilr unimodal
+cpt e ipt bimodal
+apt bimodal, pero entre 0 y 1
+ilr 2 valores negativos relacionados con mayor proporcion de machos alpha
+<<>>=
+layout(matrix(1:6,ncol=2))
+hist(clr(xdt)[,1],xlim=c(-2,2),main=colnames(xdt)[1])
+hist(clr(xdt)[,2],xlim=c(-2,2),main=colnames(xdt)[2])
+hist(clr(xdt)[,3],xlim=c(-2,2),main=colnames(xdt)[3])
+
+hist(ilr(xdt)[,1],xlim=c(-2,2),main=colnames(xdt)[1])
+hist(ilr(xdt)[,2],xlim=c(-2,2),main=colnames(xdt)[2])
+symbols(xdt[,1],xdt[,2],circles=abs(ilr(xdt)[,2]),inches=.1,
+        bg=c(1,2,3)[sign(ilr(xdt)[,2])+2])
+symbols(xdt[,3],xdt[,2],circles=abs(ilr(xdt)[,2]),inches=.1,
+        bg=c(1,2,3)[sign(ilr(xdt)[,2])+2])
+
+@ 
+
+Promedios y desviaciones estándard de las mediciones:
+<<echo=false,results=tex>>=
+sprintf("%s PW: %0.2f +/- %0.2f mm, EL: %0.2f +/- %0.2f mm, FL: %0.2f +/- %0.2f mm",
+        with(mds,aggregate(AP*10,list(G=sgrps),mean))$G,
+        with(mds,aggregate(AP*10,list(G=sgrps),mean))$x,
+        with(mds,aggregate(AP*10,list(G=sgrps),sd))$x,
+        with(mds,aggregate(LE*10,list(G=sgrps),mean))$x,
+        with(mds,aggregate(LE*10,list(G=sgrps),sd))$x,
+        with(mds,aggregate(LF*10,list(G=sgrps),mean))$x,
+        with(mds,aggregate(LF*10,list(G=sgrps),sd))$x)
+
+@ 
+
+\subsection{Modelo de idoneidad de hábitat}
+
+Empezamos el análisis ajustando un modelo de nicho para estimar la idoneidad del hábitat según la distribución de los registros de literatura y colecciones revisadas. Utilizamos el software MaxEnt (Maximum Entropy Species Distribution Modeling, Version 3.3.3k). 
+
+
+\subsubsection{Selección de Variables}
+
+Para seleccionar las variables verificamos primero la correlación de las variables dentro del área de distribución de \emph{O. festivum}. Falta colocar a que se refiere cada una de las variables y como se interpreta.
+
+\setkeys{Gin}{width=.8\textwidth}
+<<SlcVars,echo=false,fig=true,width=7,height=5>>=
+names(sbios) <- gsub("arboreo","tree",names(sbios))
+names(rbios) <- gsub("arboreo","tree",names(rbios))
+
+if (!exists("v0")) {
+  v <- as.formula(paste("~", c("alt","tree",sprintf("bio%02d",1:19)), collapse="+"))
+  v0 <- varclus(v, data=data.frame(values(sbios)))
+}
+plot(v0)
+abline(h=.6,lty=2,col=2)
+slc <- c("tree","bio01","bio02","bio03","bio05",
+         "bio12", "bio18", "bio19")
+@ 
+
+\subsubsection{Área de referencia del modelo}
+
+La definición del área de referencia o ``background'' es muy importante para el ajuste del modelo. La primera opción es tomar una selección aleatoria del área de estudio, pero esto implicitamente está suponiendo que las observaciones provienen de un muestreo aleatorio.
+
+<<mdl00,echo=false>>=
+slcbio <- rbios
+values(slcbio) <- values(slcbio)[,slc]
+if(!exists("aucs")) {
+    aucs <- data.frame()
+}
+bms <- c(1.0,0.5,2.0,4.0,8.0,10)
+dpr <- c(.5,0.25,.125,.0625)
+
+if (!exists("meA00")) {
+  for (k in 1:length(bms)) {
+    for (j in 1:length(dpr)) {
+      me <- maxent(slcbio,Olt[Olt$pa,1:2],
+                   args=c(sprintf("betamultiplier=%s",bms[k]),
+                     sprintf("defaultprevalence=%s",dpr[j])))
+      pr <- predict(me,rbios)
+      rw <- predict(me,rbios, args=c("outputformat=raw"))
+      
+      tst <- extract(pr,trmp.ll)
+      e <- evaluate(tst[dtt],tst[!dtt])
+      nms <- sprintf("meA%s%s",k-1,j-1)
+      sP <- read.csv(dir(me@path,pattern="samplePredictions",full.names=T))
+      aucs <- rbind(aucs,data.frame(bkg="Aleatorio",
+                                    modelo=nms,
+                                    np=get.params(me),
+                                    beta=bms[k],
+                                    prev=dpr[j],
+                                    tAUC=me@results["Training.AUC",],
+                                    tACC=geometricmean(seq(0,1,length=20)[-1]/quantile(sP$Logistic,seq(0,1,length=20)[-1])),
+                                    tD2=unname(mean(sP$Logistic)-me@results["Prevalence..average.of.logistic.output.over.background.sites.",]),
+                                    AUC=e@auc,
+                                    COR=e@cor,
+                                    KAPPA=max(e@kappa),
+                                    COP=threshold(e,"kappa"),
+                                    D2=mean(tst[dtt],na.rm=T)-
+                                        mean(tst[!dtt],na.rm=T)))
+      assign(nms,
+             me)
+      assign(sprintf("prA%s%s",k-1,j-1),
+             pr)
+      assign(sprintf("rwA%s%s",k-1,j-1),
+             rw)
+    }
+  }
+}
+@ 
+
+Se observa el efecto del sesgo en la distribución de los datos, muchas áreas disponibles e idóneas no están representadas en las localidades de proveniencia de los registros y por ello el modelo les asigna bajas probabilidades a esas combinaciones de variables ambientales.
+
+\setkeys{Gin}{width=.8\textwidth}
+<<fig=true,echo=false,width=7,height=5>>=
+plot(prA13,col=brewer.pal(9,"BuGn"))
+
+points(Oll)
+
+
+@ 
+
+El resultado es mucho mejor usando localidades de colecta de escarabajos como localidades ``disponibles'' (target group background method de Phillips \& Dudik 2008). En este caso estamos indicando al modelo donde se han realizado los muestreos, y por ello el efecto del sesgo de muestreo es menor.
+
+<<mdl1,echo=false>>=
+if (!exists("meJ00")) {
+  prds <- data.frame(extract(rbios,Olt[,1:2]))
+  j <- 1
+  for (k in 1:length(bms)) {
+  ##for (k in 1:4) {
+      ## cuando escogemos el bkg, la prevalencia se mantiene fija
+      ##for (j in 1:4) {
+      me <- maxent(x=prds[,slc],p=Olt$pa+0,
+                   args=c(sprintf("betamultiplier=%s",bms[k]),
+                     sprintf("defaultprevalence=%s",dpr[j])))
+      pr <- predict(me,rbios)
+      rw <- predict(me,rbios, args=c("outputformat=raw"))
+      tst <- extract(pr,trmp.ll)
+      e <- evaluate(tst[dtt],tst[!dtt])
+      nms <- sprintf("meJ%s%s",k-1,j-1)
+      sP <- read.csv(dir(me@path,pattern="samplePredictions",full.names=T))
+
+      aucs <- rbind(aucs,data.frame(bkg="Muestreo",
+                                    modelo=nms,
+                                    
+                                    np=get.params(me),
+                                    beta=bms[k],
+                                    prev=dpr[j],
+                                    tAUC=me@results["Training.AUC",],
+                                    tACC=geometricmean(seq(0,1,length=20)[-1]/quantile(sP$Logistic,seq(0,1,length=20)[-1])),
+                                    tD2=unname(mean(sP$Logistic)-me@results["Prevalence..average.of.logistic.output.over.background.sites.",]),
+                                    AUC=e@auc,
+                                    COR=e@cor,
+                                    KAPPA=max(e@kappa),
+                                    COP=threshold(e,"kappa"),
+                                    D2=mean(tst[dtt],na.rm=T)-
+                                        mean(tst[!dtt],na.rm=T)))
+      assign(nms,
+             me)
+      assign(sprintf("prJ%s%s",k-1,j-1),
+             pr)
+      assign(sprintf("rwJ%s%s",k-1,j-1),
+             rw)
+    }
+ ## }
+}
+aucs$bkg[aucs$bkg %in% "Random"] <- "Aleatorio"
+
+
+@ 
+
+
+El mapa resultante se ve mucho mejor.
+
+<<mapamejorado,fig=true,echo=false,width=7,height=5>>=
+##plot(prJ00,col=brewer.pal(9,"BuGn"))
+plot(prJ40,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Spectral"))
+plot(vzla,add=T,border="maroon")
+##plot(prJ40>cop)
+##points(Olt,cex=0.5,pch=19,col=Olt$pa+1)
+points(Olt[Olt$pa,],cex=0.5,pch=19,col="grey47")
+points(Olt[Olt$pa,],cex=0.7,pch=3,col="grey37")
+plot(Oshp,add=T)
+NM.loc <- aggregate(coordinates(trmp.ll),list(NM=trmp.ll@data$NM),median)
+
+with(subset(NM.loc,!NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+     points(lon,lat,pch=10,cex=1.5,col="grey47"))
+##with(subset(NM.loc,!NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+##     symbols(lon,lat,circles=rep(.2,33-14),inches=F,add=T,fg="grey47"))
+
+with(subset(NM.loc,NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+     symbols(lon,lat,circles=rep(.27,14),inches=F,add=T,fg="grey17"))
+
+with(subset(NM.loc,NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+     text(lon,lat,NM,font=2,cex=1,col="grey17"))
+
+@ 
+
+
+%\subsection{Área accesible}
+
+Alternativamente podemos delimitar el área de referencia en función a la accesibilidad para la especie (Barve et al 2011). Si suponemos que existen barreras biogeográficas para la dispersión de la especie, entonces podemos confinar el área de referencia a estos límites.
+
+<<mdlM1,echo=false>>=
+slcbio <- rbios
+values(slcbio) <- values(slcbio)[,slc]
+values(slcbio)[values(rH) %in% 0,] <- NA
+
+if (!exists("meM00")) {
+
+    for (k in 1:length(bms)) {
+        ##for (k in 1:4) {
+    for (j in 1:4) {
+      me <- maxent(slcbio,Olt[Olt$pa,1:2],##factors="M",
+                   args=c(sprintf("betamultiplier=%s",bms[k]),
+                     sprintf("defaultprevalence=%s",dpr[j])))
+
+      pr <- predict(me,rbios)
+      rw <- predict(me,rbios, args=c("outputformat=raw"))
+
+      tst <- extract(pr,trmp.ll)
+      e <- evaluate(tst[dtt],tst[!dtt])
+      nms <- sprintf("meM%s%s",k-1,j-1)
+      sP <- read.csv(dir(me@path,pattern="samplePredictions",full.names=T))
+
+      aucs <- rbind(aucs,data.frame(bkg="Region",
+                                    modelo=nms,
+                                    np=get.params(me),
+                                    
+                                    beta=bms[k],
+                                    prev=dpr[j],
+                                    tAUC=me@results["Training.AUC",],
+                                    tACC=geometricmean(seq(0,1,length=20)[-1]/quantile(sP$Logistic,seq(0,1,length=20)[-1])),
+                                    tD2=unname(mean(sP$Logistic)-me@results["Prevalence..average.of.logistic.output.over.background.sites.",]),
+                                    AUC=e@auc,
+                                    COR=e@cor,
+                                    KAPPA=max(e@kappa),
+                                    COP=threshold(e,"kappa"),
+                                    D2=mean(tst[dtt],na.rm=T)-
+                                        mean(tst[!dtt],na.rm=T)))
+      assign(nms,
+             me)
+      assign(sprintf("prM%s%s",k-1,j-1),
+             pr)
+      assign(sprintf("rwM%s%s",k-1,j-1),
+             rw)
+    }
+  }
+}
+
+##subset(aucs,bkg %in% "Aleatorio") ##A12
+##subset(aucs,bkg %in% "Muestreo") ##J20
+##subset(aucs,bkg %in% "Region") ##M11
+
+
+@ 
+
+Por último podemos combinar ambas estrategias para restringir el área de referencia a los sitios muestreados dentro del área accesible.
+
+<<mdlM2,echo=false>>=
+
+if (!exists("meN00")) {
+  prds <- data.frame(extract(rbios,Olt[,1:2]))
+  ss <- extract(rH,Olt[,1:2]) %in% 1
+  j <- 1
+  for (k in 1:length(bms)) {
+      ##for (k in 1:4) {
+      ##    for (j in 1:4) {
+      me <- maxent(x=prds[ss,slc],p=Olt$pa[ss]+0,
+                   args=c(sprintf("betamultiplier=%s",bms[k]),
+                     sprintf("defaultprevalence=%s",dpr[j])))
+
+      pr <- predict(me,rbios)
+      rw <- predict(me,rbios, args=c("outputformat=raw"))
+
+      tst <- extract(pr,trmp.ll)
+      e <- evaluate(tst[dtt],tst[!dtt])
+      nms <- sprintf("meN%s%s",k-1,j-1)
+      sP <- read.csv(dir(me@path,pattern="samplePredictions",full.names=T))
+
+      aucs <- rbind(aucs,data.frame(bkg="RegMst",
+                                    modelo=nms,
+                                    np=get.params(me),
+                                    beta=bms[k],
+                                    prev=dpr[j],
+                                    tAUC=me@results["Training.AUC",],
+                                    tACC=geometricmean(seq(0,1,length=20)[-1]/quantile(sP$Logistic,seq(0,1,length=20)[-1])),
+                                    tD2=unname(mean(sP$Logistic)-me@results["Prevalence..average.of.logistic.output.over.background.sites.",]),
+                                    AUC=e@auc,
+                                    COR=e@cor,
+                                    KAPPA=max(e@kappa),
+                                    COP=threshold(e,"kappa"),
+                                    D2=mean(tst[dtt],na.rm=T)-
+                                        mean(tst[!dtt],na.rm=T)))
+      assign(nms,
+             me)
+      assign(sprintf("prN%s%s",k-1,j-1),
+             pr)
+      assign(sprintf("rwN%s%s",k-1,j-1),
+             rw)
+    }
+  ##}
+}
+
+@ 
+
+\subsubsection{Ajuste y evaluación}
+
+Para cada método de selección de área de referencia probamos diferentes valores del parámetro de regularización, y para los dos métodos con selección aleatoria del área de referencia probamos diferentes valores de prevalencia.
+
+Evaluamos la bondad de ajuste usando el criterio de información de Akaike (AICc) según los datos de presencia y área de referencia utilizados. En el caso de la selección aleatoria del área de referencia el criterio de AIC favorece valores intermedios o altos de $\beta$ (modelos de baja complejidad), especialmente con baja prevalencia:
+
+<<AICaleatorio,echo=false>>=
+rownames(aucs) <- NULL
+
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Aleatorio" & D2>0)$modelo)))
+nps <- subset(aucs,bkg=="Aleatorio" & D2>0)$np
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="Aleatorio" & D2>0)$modelo
+AICt$beta <- subset(aucs,bkg=="Aleatorio" & D2>0)$beta
+AICt$prev <- round(subset(aucs,bkg=="Aleatorio" & D2>0)$prev,2)
+
+@ 
+
+Desempeño en la calibración:
+
+<<echo=false,results=tex>>=
+
+slcmod <- head(AICt[order(AICt$delta.AICc),c("modelo","beta","prev","nparam","AICc")],2)
+xt1 <- xtable(cbind(slcmod,
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Desempeño modelos con área de referencia aleatoria",
+              digits=c(0,0,1,2,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE)
+
+@ 
+
+
+Usando los sitios de muestreo como área de referencia el valor AIC disminuye con altos valores de $\beta$ que resultan en modelos con pocos parámetros:
+<<AICmuestreo,echo=false>>=
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Muestreo")$modelo)))
+nps <- subset(aucs,bkg=="Muestreo")$np
+
+exs <- extract(prs,Olt[,1:2])
+vals <- colSums(exs[Olt$pa,])
+total <- colSums(exs,na.rm=T)
+logLikelihood <- sum(log(vals / total))   
+n <- ifelse(sum(Olt$pa)>nps, sum(Olt$pa),NA)
+AICt <- data.frame(modelo = subset(aucs,bkg=="Muestreo")$modelo,
+                   beta = subset(aucs,bkg=="Muestreo")$beta,
+                   AICc=(2 * nps - 2 * logLikelihood) + (2 * nps) * (nps+1) / (n- nps - 1))
+AICt$delta.AICc <- AICt$AIC-min(AICt$AIC,na.rm=T)
+ws <- (exp(-0.5 * AICt$delta.AICc))
+AICt$w.AICc <- round(ws/sum(ws,na.rm=T),3)
+AICt$nparam=nps
+
+##AICt##[!is.na(AICt$w.AIC) & AICt$w.AIC>0.05,]
+
+@ 
+
+Desempeño en la calibración:
+
+<<echo=false,results=tex>>=
+
+slcmod <- head(AICt[order(AICt$delta.AICc),c("modelo","beta","nparam","AICc")],2)
+xt1 <- xtable(cbind(slcmod,
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Desempeño modelos con área de referencia aleatoria",
+              digits=c(0,0,1,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE)
+
+
+@ 
+
+Usando el área accesible, el criterio de AICc favorece modelos con un valores muy altos de $\beta$ que resultan en menos de 8 parámetros:
+
+<<AICregion,echo=false>>=
+
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Region"  & AUC>0.5)$modelo)))
+nps <- subset(aucs,bkg=="Region" & AUC>0.5)$np
+
+
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="Region" & AUC>0.5)$modelo
+AICt$beta <- subset(aucs,bkg=="Region" & AUC>0.5)$beta
+AICt$prev <- round(subset(aucs,bkg=="Region" & AUC>0.5)$prev,2)
+
+
+@ 
+
+
+Desempeño en la calibración:
+
+<<echo=false,results=tex>>=
+
+slcmod <- head(AICt[order(AICt$delta.AICc),c("modelo","beta","prev","nparam","AICc")],2)
+xt1 <- xtable(cbind(slcmod,
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Desempeño modelos con área de referencia accesible",
+              digits=c(0,0,1,2,0,2,3,3,3,3,3,3,3))
+
+
+
+print(xt1,include.rownames = FALSE)
+
+
+
+@ 
+
+
+Usando los sitios de muestreo dentro del área accesible:
+<<AICmuestreo,echo=false>>=
+
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="RegMst" & D2>0)$modelo)))
+nps <- subset(aucs,bkg=="RegMst" & D2>0)$np
+
+exs <- extract(prs,Olt[,1:2])
+vals <- colSums(exs[Olt$pa,])
+total <- colSums(exs,na.rm=T)
+logLikelihood <- sum(log(vals / total))   
+n <- ifelse(sum(Olt$pa)>nps, sum(Olt$pa),NA)
+AICt <- data.frame(modelo = subset(aucs,bkg=="RegMst" & D2>0)$modelo,
+                   beta = subset(aucs,bkg=="RegMst" & D2>0)$beta,
+                   AICc=(2 * nps - 2 * logLikelihood) + (2 * nps) * (nps+1) / (n- nps - 1))
+AICt$delta.AICc <- AICt$AIC-min(AICt$AIC,na.rm=T)
+ws <- (exp(-0.5 * AICt$delta.AICc))
+AICt$w.AICc <- round(ws/sum(ws,na.rm=T),3)
+AICt$nparam=nps
+
+
+
+@ 
+
+<<echo=false,results=tex>>=
+slcmod <- head(AICt[order(AICt$delta.AICc),c("modelo","beta","nparam","AICc")],2)
+xt1 <- xtable(cbind(slcmod,
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Desempeño modelos con área de referencia del muestreo dentro del área accesible",
+              digits=c(0,0,1,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE)
+
+
+@ 
+
+Se pueden hacer varios gráficos de desempeño:
+
+<<echo=false,fig=true>>=
+layout(matrix(1:4,ncol=2))
+plot(tAUC~tACC,aucs)
+plot(D2~tD2,aucs)
+plot(AUC~tACC,aucs)
+plot(AUC~tAUC,aucs)
+@ 
+
+
+Comparando los modelos con mejor desempeño según el criterio de AICc según cada método de selección de área de referencia:
+
+\setkeys{Gin}{width=.9\textwidth}
+<<echo=false,fig=true,width=9,height=7>>=
+par(mar=c(0,0,0,0))
+layout(matrix(1:4,ncol=2))
+plot(prA20,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Spectral"))
+plot(vzla,add=T,border="maroon")
+
+plot(prJ40,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Spectral"))
+plot(vzla,add=T,border="maroon")
+
+plot(prM12,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Spectral"))
+plot(vzla,add=T,border="maroon")
+
+plot(prN20,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Spectral"))
+plot(vzla,add=T,border="maroon")
+
+@ 
+
+
+
+
+%\subsubsection{Evaluación del modelo}
+
+Además evaluamos el desempeño predictivo con los datos del muestreo de NeoMapas. Evaluamos los modelos anteriores en las localidades de colecta de NeoMapas. Los datos de NeoMapas representan presencia/ausencia, y por tanto permiten calcular una matriz de confusión (predicción vs. observado). Por ejemplo podemos comparar el valor predicho (eje ``y''), para las trampas donde la especie no fue detectada (\texttt{FALSE}) y para las trampas en las cuales fue detectada (\texttt{TRUE}):
+
+
+
+
+La selección del área de referencia según el patrón de muestreo resultó en mejor desempeño predictivo (AUC) y coeficiente de discriminación ($D$) que las otras alternativas para todos los valores del parámetro de regularización o prevalencia.
+
+%Coefficients of Determination in Logistic Regression Models : A New Proposal: The Coefficient of Discrimination. / Tjur, Tue. In: American Statistician, Vol. 63, No. 4, 2009, p. 366-372.
+
+%http://statisticalhorizons.com/r2logistic
+%his new definition is D=π^¯1−π^¯0, which is the mean predicted value for the 1 responses minus the mean predicted value for the 0 responses. It can range from 0 to 1. Tjur does not dismiss the Nagelkerke pseudo R2, but suggests it lacks the "intuitive appeal" enjoyed by D.
+
+<<echo=false,fig=true>>=
+plot(AUC~D2,aucs)
+points(AUC~D2,subset(aucs,bkg %in% "Muestreo"),pch=19)
+points(AUC~D2,subset(aucs,bkg %in% "RegMst"),pch=19,col=2)
+
+plot(COR~KAPPA,aucs)
+points(COR~KAPPA,subset(aucs,bkg %in% "Muestreo"),pch=19)
+points(COR~KAPPA,subset(aucs,bkg %in% "RegMst"),pch=19,col=2)
+@ 
+
+Aún cuando dentro de este grupo de modelos (área de referencia según patrón de muestreo) el valor de AICc fue menor para el modelo con mayor valor de regularización (beta=10), el desempeño predictivo fue mejor para valores menos extremos (beta = 1, 2,4,8), la mayor correlación y discriminación se obtuvo con beta=1. El valor de AUC del modelo meJ50 fue significativamente menor que para el modelo meJ40.
+
+<<echo=false>>=
+
+## con prJ10 el cop "no_omission" es 17, con prJ40 es 50... 
+## para este caso, el prJ10 parece dar valores muy heterogeneos (escala muy fina)
+##power.roc.test
+
+tst00 <- extract(prJ10,trmp.ll)
+tst01 <- extract(prN00,trmp.ll)
+roc1 <- roc(response=dtt,predictor=tst00,ci=T)
+roc2 <- roc(response=dtt,predictor=tst01,ci=T)
+roc.test(roc1,roc2)
+
+tst00 <- extract(prJ50,trmp.ll)
+roc2 <- roc(response=dtt,predictor=tst00,ci=T)
+
+tst01 <- extract(prJ40,trmp.ll)
+roc1 <- roc(response=dtt,predictor=tst01,ci=T)
+roc.test(roc1,roc2)
+
+pvs <- c()
+for (k in 0:5) {
+    tst11 <- extract(get(sprintf("prJ%s0",k)),trmp.ll)
+    roc2 <- roc(response=dtt,predictor=tst11,ci=T)
+    pvs <- c(pvs,roc.test(roc1,roc2)$p.value)
+}
+cbind(subset(aucs,bkg %in% "Muestreo"),p=round(pvs,3))
+rank(subset(aucs,bkg %in% "Muestreo")$AUC)+rank(subset(aucs,bkg %in% "Muestreo")$COR)+rank(subset(aucs,bkg %in% "Muestreo")$KAPPA)+rank(subset(aucs,bkg %in% "Muestreo")$D2)
+
+@ 
+
+\subsubsection{Interpretación}
+
+Importancia de las variables del modelo de MaxEnt, el grafico indica la importancia de cada variable y la compara con el valor esperado según una partición aleatoria de la varianza (modelo ``broken stick'', línea roja). La variable más importante es bio01, el resto de las variables seleccionadas contribuyen equitativamente en el desempeño del modelo.
+
+<<importancia,fig=true,echo=true>>=
+plot(meJ40,xlim=c(0,50))
+lines(vegan::bstick(meJ40, tot.var = 100,n=8),8:1,col=2)
+
+@ 
+
+Podemos igualmente visualizar la respuesta de cada una de las variables. Con el valor de $\beta$ seleccionado el modelo ajusta relaciones sencillas para cada una de las variables. Aparentemente la variable bio19 no tiene efectos en la idoneidad.
+
+<<response,fig=true>>=
+response(meJ40)
+
+@ 
+
+
+\subsection{Exploración de correlaciones}
+
+<<echo=false>>=
+prd1 <- extract(prJ40,trmp.ll)
+prd2 <- extract(prJ40,trmp.ll[is.na(prd1),],buffer=4000)
+prd1[is.na(prd1)] <-  unlist(lapply(prd2,median,na.rm=T))
+
+rgn <- extract(rH,trmp.ll)
+
+trmp.ll@data$HS <- prd1
+cop <- threshold(evaluate(tst01[dtt],tst01[!dtt]),"no_omission")
+ss <- prd1 > cop & rgn %in% 1
+##ss <- rgn %in% 1
+
+@ 
+
+Usando el modelo seleccionado, el punto de corte óptimo (cero omissión de los datos de NeoMapas) es \Sexpr{round(cop,3)}.
+
+<<PrediccionFinal,fig=true,echo=false>>=
+plot((prJ40>cop) + rH)
+
+@ 
+
+Un total de \Sexpr{sum(ss)} trampas (\Sexpr{round(mean(ss)*100,1)} \%) están ubicadas en áreas con valores de idoneidad iguales o superiores al punto de corte óptimo. Entre esas trampas los valores de Lai y Fpar están altamente correlacionados.
+
+<<fig=true,echo=false>>=
+
+plot(varclus(as.matrix(trmp.ll@data[ss,colnames(mdsvr2)])))
+abline(h=.5,lty=2)
+
+
+@ 
+
+Evaluamos la correlación de estas variables ambientales (exceptuando Fpar) con la presencia, abundancia y la proporción de machos del segundo fenotipo en las trampas de NeoMapas, y con las cuatro medidas de tamaño medidas en los individuos capturados en estas trampas.
+
+<<variableOxy,echo=false>>=
+
+tmds <- table(mds$vst)
+tmds <- tmds[match(trmp.ll$vst,names(tmds))]
+tmds[is.na(tmds)] <- 0
+tmds <- unname(tmds)
+
+abnd <- table(mds$vst)
+abnd <- abnd[match(trmp.ll$vst,names(abnd))]
+##abnd <- fOxy$Oxysternon.festivum
+##abnd <- abnd[match(trmp.ll$vst,fOxy$trampa)]
+abnd[is.na(abnd)] <- 0
+
+##ab2 <- table(subset(scr.NM,genero %in% "Oxysternon" & especie %in% "festivum")$vst)
+##ab2 <- ab2[match(trmp.ll$vst,names(ab2))]
+##ab2[is.na(ab2)] <- 0
+
+chk <- data.frame(VST=trmp.ll$vst[dtt],A=abnd[dtt],##A2=ab2[dtt],
+                  M=tmds[dtt])
+
+##abnd[ab2 > abnd] <- ab2[ab2 > abnd]
+
+## verificar gavetas
+## gaveta Arianna (NM39) 202 ejemplares montados
+## colección de referencia 11
+## 58 + 101 gaveta Ceci
+##mds 202 + 173 = 375 ejemplares
+table(is.na(mds$AP))
+
+
+
+
+
+#### revisar bien este problema, no coinciden...
+
+s2 <- !(trmp.ll$vst %in% mds$vst) & dtt
+table(dtt, trmp.ll$vst %in% mds$vst)
+
+
+yy <- dtt[ss]+0
+ya <- unname(abnd[ss])
+sz <- round(trmp.ll@data$sfrz[ss]/24) ##log1p(ya))
+sz <- round(trmp.ll@data$sfrz[ss]/24)^0 ##log1p(ya))
+##sz <- 1+(sz>2)
+@ 
+
+Hay que revisar todas las coordenadas, tenemos varios problemas...
+
+<<fig=true>>=
+sn <- trmp.ll@data$NM %in% trmp.ll@data$NM[ss]
+sf <- trmp.ll@data$Fpar_1km<.4
+plot(crop(prJ40,trmp.ll[sn,]))
+plot(crop(prJ40,extent(-68.5,-60.5,4.5,11.5)))
+plot(vzla,add=T,border="maroon")
+
+points(trmp.ll,pch=19,cex=.8,col="grey44")
+points(trmp.ll[sn,],pch=19,cex=.8)
+points(trmp.ll[dtt,],col=5,cex=.5,pch=3)
+
+@ 
+
+
+Para esteblecer una función de calibración adecuada para cada variable exploramos modelos lineales generalizados (GLM) con diferentes combinaciones de variables y relaciones lineales y cuadráticas.
+
+<<Cebo>>=
+ colSums(with(subset(trmp.NM,vst %in% mds$vst),table(vst,cebo))>0)
+colMeans(with(subset(trmp.NM,vst %in% trmp.ll@data$vst[ss]),table(vst,cebo %in% c("HH","heces humanas","Estiercol","HV")))>0)
+
+table(trmp.NM$cebo,
+      trmp.NM$cebo %in% c("HH","heces humanas","heces humanas","Heces Humanas",
+                          "Estiercol","HV","Heces Cerdo",  "heces perro",
+                          "heces de perro","bosta de caballo","bosta de vaca"))
+
+trmp.ll@data$cebo <- trmp.ll@data$vst %in% 
+    unique(subset(trmp.NM,cebo %in% c("HH","heces humanas","heces humanas",
+                                      "Heces Humanas","heces perro",
+                                      "Estiercol","HV","Heces Cerdo",  
+                                      "heces de perro","bosta de caballo",
+                                      "bosta de vaca"))$vst)
+##table(trmp.NM$cebo,
+##      trmp.NM$cebo %in% c("Intercepción de ", "Interceptacion"))
+@ 
+
+<<FixFpar,eval=true>>=
+if (!exists("fxFpar")) {
+    chk <- with(trmp.ll@data,aggregate(data.frame(Fpar_1km),list(Prd=Prd),max,na.rm=T))
+    fxFpar <- chk[match(trmp.ll@data$Prd,chk$Prd),"Fpar_1km"]
+    plot(trmp.ll@data$Fpar_1km[dtt],fxFpar[dtt])
+    abline(a=0,b=1)
+    
+    trmp.ll@data$Fpar_1km[trmp.ll@data$Fpar_1km < .8 & dtt] <- 
+        fxFpar[trmp.ll@data$Fpar_1km < .8 & dtt]
+}
+@ 
+
+Analizamos la distribución y abundancia con un modelo negativo binomial con exceso de ceros. 
+
+<<zinegbinom,echo=false>>=
+## poisson (ZI) no es adecuado, usamos negbin (ZI)
+
+## decisiones...
+## mejor temperatura diurna que nocturna (especie de habitos diurnos)
+## mejor usar la diferencia entre ET y PET que estas variables por separado
+## todas las variables con polinomios de segundo grado no funciona bien
+## mejor NDVI y Fpar que EVI y Lai (EVI y Lai están más correlacionados)
+## ¿usar siempre el offset en presencia? Si
+## mejor Lai que Fpar? No, mejor Fpar
+
+## temperatura mejor lineal que binomial
+## NDVI mejor lineal que binomial
+## Fpar mejor cuadrático
+
+## ¿usar pesos?, no, ocasiona problemas para estimar S.E. de los estimados
+
+mdl1 <- zeroinfl(ya~1|cebo+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit"))
+mdl2 <- zeroinfl(ya~cebo|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit"))
+mdl3 <- zeroinfl(ya~1|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit"))
+mdl4 <- zeroinfl(ya~cebo|cebo+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit"))
+
+ss <- prd1 > cop & rgn %in% 1 & trmp.ll@data$cebo
+sz <- round(trmp.ll@data$sfrz[ss]/24)^0 ##log1p(ya))
+ya <- unname(abnd[ss])
+yy <- dtt[ss]+0
+## offset solo en el componente de Psi
+if (!exists("lstmdl"))
+    lstmdl <- list(##null=zeroinfl(ya~1, 
+    ##  data=trmp.ll@data[ss,],dist = c("negbin"),link = c("logit")),
+    ##HS
+    "Psi(HS)"=zeroinfl(ya~1|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(HS)"=zeroinfl(ya~HS|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(HS)Psi(HS)"=zeroinfl(ya~HS|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")))
+
+##clima
+if (!exists("lstclm"))
+    lstclm <- list(
+##    "Psi(LSTd+DET)"=zeroinfl(ya~1|poly(LST_Day_1km,2)+poly(DET,2),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Psi(LSTd+DET+HS)"=zeroinfl(ya~1|poly(LST_Day_1km,2)+poly(DET,2)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+HS|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET)Psi(HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+HS)Psi(HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+HS|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET)Psi(LSTd+DET)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET)Psi(LSTd+DET+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)|poly(LST_Day_1km,2)+poly(DET,2)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+HS)Psi(LSTd+DET+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+HS|poly(LST_Day_1km,2)+poly(DET,2)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")))
+    
+    ##veg
+if (!exists("lstmd2"))
+lstmd2 <- list(
+##    "Psi(NDVI+FPAR)"=zeroinfl(ya~1|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Psi(NDVI+FPAR+HS)"=zeroinfl(ya~1|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+
+                             offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(NDVI+FPAR)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(NDVI+FPAR+HS)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR)Psi(HS)"=zeroinfl(ya~poly(Fpar_1km,1)+
+                                    poly(v250m_16_days_NDVI,1)|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR+HS)Psi(HS)"=zeroinfl(ya~poly(Fpar_1km,1)+
+                                    poly(v250m_16_days_NDVI,1)+HS|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(NDVI+FPAR)Psi(NDVI+FPAR)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(NDVI+FPAR+HS)Psi(NDVI+FPAR)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR)Psi(NDVI+FPAR+HS)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR+HS)Psi(NDVI+FPAR+HS)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")))
+    
+    ##HS + clima o veg
+if (!exists("lstmd3"))
+lstmd3 <- list(
+##    "Lambda(NDVI+FPAR)Psi(LSTd+DET)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|poly(LST_Day_1km,2)+poly(DET,2),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(NDVI+FPAR+HS)Psi(LSTd+DET)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(LST_Day_1km,2)+poly(DET,2),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR)Psi(LSTd+DET+HS)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|poly(LST_Day_1km,2)+poly(DET,2)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(NDVI+FPAR+HS)Psi(LSTd+DET+HS)"=zeroinfl(ya~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(LST_Day_1km,2)+poly(DET,2)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET)Psi(NDVI+FPAR)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET+HS)Psi(NDVI+FPAR)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+HS|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET)Psi(NDVI+FPAR+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+HS)Psi(NDVI+FPAR+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+HS|poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")))
+
+    ##clima + veg
+if (!exists("lstmd4"))
+    lstmd4 <- list(
+##    "Lambda(LSTd+DET+NDVI+FPAR)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET+NDVI+FPAR+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|1,
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+NDVI+FPAR)Psi(HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+NDVI+FPAR+HS)Psi(HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Psi(LSTd+DET+NDVI+FPAR)"=zeroinfl(ya~1|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(HS)Psi(LSTd+DET+NDVI+FPAR)"=zeroinfl(ya~HS|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Psi(LSTd+DET+NDVI+FPAR+HS)"=zeroinfl(ya~1|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(HS)Psi(LSTd+DET+NDVI+FPAR+HS)"=zeroinfl(ya~HS|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET+NDVI+FPAR)Psi(LSTd+DET+NDVI+FPAR)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+##    "Lambda(LSTd+DET+NDVI+FPAR+HS)Psi(LSTd+DET+NDVI+FPAR)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1),
+##        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+NDVI+FPAR)Psi(LSTd+DET+NDVI+FPAR+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")),
+    "Lambda(LSTd+DET+NDVI+FPAR+HS)Psi(LSTd+DET+NDVI+FPAR+HS)"=zeroinfl(ya~poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS|poly(LST_Day_1km,2)+poly(DET,2)+poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+offset(HS),
+        data=trmp.ll@data[ss,], weights = sz, dist = c("negbin"),link = c("logit")))
+    
+lms <- c(lstmdl,lstclm,lstmd2,lstmd3,lstmd4)
+cvg <- unlist(lapply(lms,function(x) x$converged)) & unlist(lapply(lms,function(x) !is.na(x$SE.logtheta)))
+ 
+table(cvg)
+head(aictab(lms[cvg],names(lms)[cvg]))
+
+slc <- "Lambda(LSTd+DET+HS)Psi(NDVI+FPAR+HS)"
+##slc <- "Lambda(LSTd+DET+NDVI+Fpar+HS)Psi(LSTd+DET+NDVI+Fpar+HS)"
+summary(lms[[slc]])
+ plot(sqrt(abs(resid(lms[[slc]])))~fitted(lms[[slc]]),log="x")
+
+boxplot(predict(lms[[slc]],type="count")~yy,log="y")
+boxplot(predict(lms[[slc]],type="zero")~yy)
+
+
+
+@ 
+
+
+
+
+Predicción
+
+<<XYZs,echo=false>>=
+
+mnx <- min(trmp.ll@data[ss,"Fpar_1km"])*.99999
+mxx <- max(trmp.ll@data[ss,"Fpar_1km"])*1.0001
+mny <- min(trmp.ll@data[ss,"v250m_16_days_NDVI"])*.99999
+mxy <- max(trmp.ll@data[ss,"v250m_16_days_NDVI"])*1.0001
+
+mnw <- min(trmp.ll@data[ss,"LST_Day_1km"])*.99999
+mxw <- max(trmp.ll@data[ss,"LST_Day_1km"])*1.0001
+mnz <- 0.7##min(trmp.ll@data[ss,"DET"])*.99999
+mxz <- max(trmp.ll@data[ss,"DET"])*1.0001
+##mxz <- 170##max(trmp.ll@data[ss,"ET_1km"])*1.0001
+
+x1 <- seq(mnx,mxx,length=25)
+x2 <- seq(mny,mxy,length=25)
+x3 <- seq(mnw,mxw,length=25)
+x4 <- seq(mnz,mxz,length=25)
+
+xg1 <- expand.grid(Fpar_1km=x1,
+                    v250m_16_days_NDVI=x2)
+xg2 <- expand.grid(LST_Day_1km=x3,
+                    DET=x4)
+nwdt <- cbind(xg1,xg2)
+nwdt$HS <- median(trmp.ll@data[ss,"HS"])
+
+##nwdt$LST_Day_1km <- mean(trmp.ll@data[ss,"LST_Day_1km"])
+##nwdt$ET_1km <- mean(trmp.ll@data[ss,"ET_1km"])
+
+z1 <- matrix(nwdt$Fpar_1km,ncol=25,nrow=25)
+z2 <- matrix(nwdt$v250m_16_days_NDVI,ncol=25,nrow=25)
+z3 <- matrix(nwdt$LST_Day_1km,ncol=25,nrow=25)
+z4 <- matrix(nwdt$DET,ncol=25,nrow=25)
+
+@ 
+
+\setkeys{Gin}{width=\textwidth}
+<<PredPsiLambda,echo=false,fig=true,width=9,height=5>>=
+
+##if (!exists("prd.a")) {
+##    prd.a <-   modavgPred(cand.set = lstmdl, modnames = mdlnms,newdata=nwdt,type="response")
+##}
+
+nwd2 <- nwdt
+nwd2$LST_Day_1km <-  mean(mdsvr2$LST_Day_1km)
+
+nwd2$DET <-  mean(mdsvr2$DET)
+
+prd.y <- predict(lms[[slc]],newdata=nwd2,type="zero")
+z3 <- matrix(prd.y,ncol=25,nrow=25)
+
+nwd2 <- nwdt
+nwd2$Fpar_1km <- mean(mdsvr2$Fpar_1km)
+nwd2$v250m_16_days_NDVI <- mean(mdsvr2$v250m_16_days_NDVI)
+
+prd.a <- predict(lms[[slc]],newdata=nwd2,type="count")
+z4 <- matrix(prd.a,ncol=25,nrow=25)
+
+layout(matrix(1:2,ncol=2))
+##z3 <- matrix(prd.a$mod.avg.pred,ncol=25,nrow=25)
+##z3[z3>20000] <- NA
+##z4 <- matrix(prd.a$uncond.se,ncol=25,nrow=25)
+ image(x1,x2,1-z3,col=brewer.pal(9,"Blues"),breaks=c(0,.05,.1,.15,.25,.5,.75,1,10,10000000000),xlab="FPAR",ylab="NDVI")
+
+contour(x1,x2,1-z3,levels=c(.05,.1,.15,.25),add=T)
+##contour(x1,x2,z4,levels=c(.05,.1,.15,.5,1,2),add=T)
+##contour(x1,x2,z4,add=T)
+with(trmp.ll@data[ss,],symbols(Fpar_1km,v250m_16_days_NDVI,circles=yy,inches=.05,fg=c(2,1)[1+(yy==0)],add=T))
+
+
+
+##*(1-z3)
+image(x3,x4,log1p(z4),col=brewer.pal(9,"Reds"),breaks=c(0,.05,.1,.15,.25,.5,.75,1,10,10000000000),xlab="LSTd",ylab="DET")
+##*(1-z3)
+contour(x3,x4,log1p(z4),levels=c(.05,.5,1),add=T)
+with(trmp.ll@data[ss,],
+     symbols(LST_Day_1km,DET,circles=ya,inches=.415,fg=c("aliceblue",1)[1+(ya==0)],add=T))
+
+@ 
+
+\section{Biomasa}
+
+<<ResumenXtrampa,echo=false>>=
+
+cc <- !is.na(mds$PS)
+xdt <- with(subset(mds,cc),table(vst,sgrps))
+bdt <- with(subset(mds,cc),tapply(PS,list(vst,sgrps),sum,na.rm=T))
+bdt[is.na(bdt)] <- 0
+bvars <- trmp.ll@data[match(row.names(bdt),trmp.ll$vst),]
+
+mds$PE[mds$sgrps=="H"] <- aggregate(mds$PS,list(mds$sgrps),mean,na.rm=T)$x[1]
+mds$PE[mds$sgrps=="M1"] <- aggregate(mds$PS,list(mds$sgrps),mean,na.rm=T)$x[2]
+mds$PE[mds$sgrps=="M2"] <- aggregate(mds$PS,list(mds$sgrps),mean,na.rm=T)$x[3]
+
+bwt <- with(subset(mds,cc),tapply(PE,list(vst,sgrps),sum,na.rm=T))
+bwt[is.na(bwt)] <- 0
+
+##cbind(xdt[,2],xdt[,3])
+
+bm <- rowSums(bdt)
+be <- rowSums(bwt)
+##all(names(bm)==names(be))
+
+
+@ 
+
+
+
+
+<<>>=
+##bvars$cebo <- bvars$vst %in% trmp.ll@data$vst[trmp.ll@data$cebo]
+
+
+pca1 <- rda(log1p(bdt)~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+factor(cebo)+HS,bvars)
+##pca1 <- rda(log1p(bdt)~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS+Condition(be),bvars)
+
+pca1
+
+rda(log1p(bdt)~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+Condition(HS),bvars)
+
+summary(pca1)$cont
+(gfit <-  goodness(pca1,choice=1:3))
+
+abs(intersetcor(pca1))>.2
+
+
+@ 
+ El primer eje ordena las muestras por biomasa total, mientras que en el segundo eje se observa el cambio en la proporción de los morfotipos de machos. 
+
+
+ \setkeys{Gin}{width=\textwidth}
+<<ORD,fig=true,echo=false,width=9,height=5>>=
+layout(matrix(1:2,ncol=2))
+rownames(pca1$CCA$biplot) <- c("FPAR","LSTd","LSTd2","NDVI","DET","DET2","BAIT","HS")
+ord1 <- plot(pca1,type="n")
+##fit <- ordisurf(pca1 ~ DET, bvars,col=4,add=T,cex=NA)
+##fit <- ordisurf(pca1 ~ Fpar_1km, bvars,knots=10,isotropic=T,cex=NA,add=T)
+##fit <- ordisurf(pca1 ~ v250m_16_days_NDVI, bvars,col=4,add=T,cex=NA)
+symbols(scores(pca1, choices=1, display="sites"),
+        scores(pca1, choices=2, display="sites"),
+        circles=log1p(bm),add=T,inches=.25)
+##rownames(pca1$CCA$biplot) <- c("FPAR","FPAR²","LSTn","LSTn²","NDVI","NDVI²","DEP","DEP²","HS")
+##rownames(pca1$CCA$biplot) <- c("FPAR","FPAR²","FPAR³","FPAR4","LSTd","NDVI","DEP","DEP2","HS")
+
+##text(pca1, display="cn",choice=1:2,lwd=c(rep(1:2,2),rep(1,1),NA,NA,rep(2,3)),
+##     col=c(rep(c("grey47","red"),2),rep("grey47",1),NA,NA,rep("red",3)),axis.bp=F)#,lty=c(3,3,1,1,3,3,3,3))
+text(ord1, what="biplot",col=2,
+     select=c(2,4,6:8),adj=.5)
+arrows(0,0,ord1$biplot[,1]*.85,ord1$biplot[,2]*.85,angle=12,length=.12,
+       lwd=2,
+       col=c(rep(c(NA,"red"),2),rep(NA,1),rep("red",3)))
+
+
+
+
+ord1 <- plot(pca1,choices=2:3,type="n")
+##fit <- ordisurf(pca1 ~ DET, bvars,choices=2:3,col=2,add=T,cex=NA)
+##symbols(scores(pca1, choices=1, display="sites")[rowSums(bdt>0)==1],
+##        scores(pca1, choices=2, display="sites")[rowSums(bdt>0)==1],
+##        circles=(bm[rowSums(bdt>0)==1])^0,add=T,inches=.05,lty=3)
+mxs=1.5
+for (k in seq(along=bdt[,1])[rowSums(bdt) != bdt[,1]])
+    if (sum(bdt[k,])>0)
+        floating.pie(scores(pca1, choices=2, display="sites")[k],
+                     scores(pca1, choices=3, display="sites")[k],
+                     bdt[k,],edges=200,
+                     radius=.15, ##log1p(sum(bdt[k,]))/mxs,
+                     col=brewer.pal(3,"Pastel1")[bdt[k,]>0],
+                     shadow=FALSE)
+text(pca1, display="cn",choice=2:3,lwd=c(rep(2,1),rep(1,2),rep(2:1,2)),
+     col=c(rep(2,1),rep("grey47",2),rep(c(2,"grey47"),2)),axis.bp=F)#,lty=c(3,3,1,1,3,3,3,3))
+
+@ 
+
+Según el test de permutación (Legendre et al. 2011), tanto NDVI como LSTn tienen efectos significativos. NDVI está más correlacionada con los dos primeros ejes, mientras que LSTn está correlacionada con los ejes 2 y 3.
+%Legendre, P., Oksanen, J. and ter Braak, C.J.F. (2011). Testing the significance of canonical axes in redundancy analysis. _Methods in Ecology and Evolution_ 2, 269-277.
+
+<<Anova>>=
+##anova(pca1,by="axis")
+##anova(pca1,by="terms")
+anova(pca1,by="margin")
+##inertcomp(pca1,proportional=T)
+intersetcor(pca1)
+@ 
+
+<<mdslst>>=
+cor(mds[,c("AP","LC","LE","LF","PS")],use="pairwise.complete.obs")
+
+mdsvr2$HS <- trmp.ll@data$HS[match(mds$vst,trmp.ll@data$vst)]
+summary(lm(PS~I((AP^2*(AP*LE)))*sgrps,mds[cc,]))
+plot(lm(PS~I((AP^2*(AP*LE)))*sgrps,mds[cc,]))
+##
+mds[cc,][c(118,134,373,117,259,196),]
+
+PS.lst <- list("PS(V+C+HS)"=lm(PS~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "PS(V+HS)"=lm(PS~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS+sgrps,cbind(mds,mdsvr2)),
+               "PS(C+HS)"=lm(PS~poly(LST_Day_1km,2)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "PS(HS)"=lm(PS~HS+sgrps,cbind(mds,mdsvr2)),
+               "PS(V+C)"=lm(PS~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "PS(V)"=lm(PS~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+sgrps,cbind(mds,mdsvr2)),
+               "PS(C)"=lm(PS~poly(LST_Day_1km,2)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+ 
+##               "PS(HS*)"=lm(PS~HS*sgrps,cbind(mds,mdsvr2)),
+##               "PS(V+C*)"=lm(PS~(poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2))*sgrps,cbind(mds,mdsvr2)),
+##               "PS(V+C+HS*)"=lm(PS~(poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS)*sgrps,cbind(mds,mdsvr2)),
+##               "PS(V*)"=lm(PS~(poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1))*sgrps,cbind(mds,mdsvr2)),
+##               "PS(C*)"=lm(PS~(poly(LST_Day_1km,2)+poly(DET,2))*sgrps,cbind(mds,mdsvr2)),
+ 
+               "PS(.)"=lm(PS~1+sgrps,cbind(mds,mdsvr2)))
+
+LF.lst <- list("LF(V+C+HS)"=lm(LF~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LF(V+HS)"=lm(LF~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LF(C+HS)"=lm(LF~poly(LST_Day_1km,2)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LF(HS)"=lm(LF~HS+sgrps,cbind(mds,mdsvr2)),
+               "LF(V+C)"=lm(LF~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "LF(V)"=lm(LF~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+sgrps,cbind(mds,mdsvr2)),
+               "LF(C)"=lm(LF~poly(LST_Day_1km,2)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "LF(.)"=lm(LF~1+sgrps,cbind(mds,mdsvr2)))
+
+AP.lst <- list("AP(V+C+HS)"=lm(AP~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "AP(V+HS)"=lm(AP~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS+sgrps,cbind(mds,mdsvr2)),
+               "AP(C+HS)"=lm(AP~poly(LST_Day_1km,2)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "AP(HS)"=lm(AP~HS+sgrps,cbind(mds,mdsvr2)),
+               "AP(V+C)"=lm(AP~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "AP(V)"=lm(AP~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+sgrps,cbind(mds,mdsvr2)),
+               "AP(C)"=lm(AP~poly(LST_Day_1km,2)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "AP(.)"=lm(AP~1+sgrps,cbind(mds,mdsvr2)))
+
+LE.lst <- list("LE(V+C+HS)"=lm(LE~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LE(V+HS)"=lm(LE~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LE(C+HS)"=lm(LE~poly(LST_Day_1km,2)+poly(DET,2)+HS+sgrps,cbind(mds,mdsvr2)),
+               "LE(HS)"=lm(LE~HS+sgrps,cbind(mds,mdsvr2)),
+               "LE(V+C)"=lm(LE~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "LE(V)"=lm(LE~poly(Fpar_1km,1)+poly(v250m_16_days_NDVI,1)+sgrps,cbind(mds,mdsvr2)),
+               "LE(C)"=lm(LE~poly(LST_Day_1km,2)+poly(DET,2)+sgrps,cbind(mds,mdsvr2)),
+               "LE(.)"=lm(LE~1+sgrps,cbind(mds,mdsvr2)))
+
+aictab(AP.lst,names(AP.lst))
+aictab(LE.lst,names(LE.lst))
+aictab(LF.lst,names(LF.lst))
+aictab(PS.lst,names(PS.lst))
+
+@ 
+
+Grafico tamaño con variables
+
+\setkeys{Gin}{width=\textwidth}
+<<PredNu,echo=false,fig=true,width=9,height=5>>=
+mnx <- min(trmp.ll@data[ss,"Fpar_1km"])*.99999
+mxx <- max(trmp.ll@data[ss,"Fpar_1km"])*1.0001
+mny <- 0.6##min(trmp.ll@data[ss,"v250m_16_days_NDVI"])*.99999
+mxy <- max(trmp.ll@data[ss,"v250m_16_days_NDVI"])*1.0001
+
+mnw <- min(trmp.ll@data[ss,"LST_Day_1km"])*.99999
+mxw <- max(trmp.ll@data[ss,"LST_Day_1km"])*1.0001
+mnz <- 0.7##min(trmp.ll@data[ss,"DET"])*.99999
+mxz <- max(trmp.ll@data[ss,"DET"])*1.0001
+##mxz <- 170##max(trmp.ll@data[ss,"ET_1km"])*1.0001
+
+x1 <- seq(mnx,mxx,length=25)
+x2 <- seq(mny,mxy,length=25)
+x3 <- seq(mnw,mxw,length=25)
+x4 <- seq(mnz,mxz,length=25)
+
+xg1 <- expand.grid(Fpar_1km=x1,
+                    v250m_16_days_NDVI=x2)
+xg2 <- expand.grid(LST_Day_1km=x3,
+                    DET=x4)
+nwdt <- cbind(xg1,xg2)
+nwdt$HS <- median(trmp.ll@data[ss,"HS"])
+
+nwd2 <- nwdt
+nwd2$LST_Day_1km <-  mean(mdsvr2$LST_Day_1km)
+
+nwd2$DET <-  mean(mdsvr2$DET)
+nwd2$sgrps <- "M1"
+prd.y <- predict(PS.lst[["PS(V+C+HS)"]],newdata=nwd2,type="response")
+z5 <- matrix(prd.y,ncol=25,nrow=25)
+
+nwd2 <- nwdt
+nwd2$Fpar_1km <- mean(mdsvr2$Fpar_1km)
+nwd2$v250m_16_days_NDVI <- mean(mdsvr2$v250m_16_days_NDVI)
+nwd2$sgrps <- "M1"
+prd.a <- predict(PS.lst[["PS(V+C+HS)"]],newdata=nwd2,type="response")
+z6 <- matrix(prd.a,ncol=25,nrow=25)
+
+layout(matrix(1:2,ncol=2))
+##z3 <- matrix(prd.a$mod.avg.pred,ncol=25,nrow=25)
+##z3[z3>20000] <- NA
+##z4 <- matrix(prd.a$uncond.se,ncol=25,nrow=25)
+ image(x1,x2,z5,col=brewer.pal(9,"Greens"),
+       breaks=c(0,.3,.35,.4,.45,.5,.55,.6,.65,.75),xlab="FPAR",ylab="NDVI")
+
+contour(x1,x2,z5,levels=c(.4,.45,.5,.55,.6),add=T)
+##contour(x1,x2,z4,levels=c(.05,.1,.15,.5,1,2),add=T)
+##contour(x1,x2,z4,add=T)
+with(cbind(mds,mdsvr2),
+     symbols(Fpar_1km,v250m_16_days_NDVI,circles=PS,
+             inches=.15,add=T))
+
+##*(1-z3)
+image(x3,x4,z6,col=brewer.pal(9,"Oranges"),
+      breaks=c(0.05,.1,.15,.2,.25,.3,.35,.4,.45,.5),xlab="LSTd",ylab="DET")
+##*(1-z3)
+contour(x3,x4,z6,levels=c(.2,.25,.3,.35,.4),add=T)
+with(cbind(mds,mdsvr2),
+     symbols(jitter(LST_Day_1km),jitter(DET),circles=PS,
+             inches=.15,add=T))
+@ 
+
+<<>>=
+bb <- !is.na(mds$PS)
+pca2 <- rda(mds[cc,c("AP","LE","LF","PS")]~poly(Fpar_1km,1)+poly(LST_Day_1km,2)+poly(v250m_16_days_NDVI,1)+poly(DET,2)+Condition(mds$sgrps[cc]),mdsvr2[cc,])
+plot(pca2)
+anova(pca2,by="margin")
+
+@ 
+
+\section{Discusión}
+El modelo de distribución ajustado a datos históricos (literatura y colecciones) tuvo un buen desempeño al evaluarlo con los datos de los muestreos sistemáticos de 2006 y 2009. La distribución de la especie está relacionada principalmente con las variables bio02 y bio19, pero la variable arboreo tiene un aporte significativo. Igualmente la presencia (detección) y abundancia en los muestreos de NeoMapas estuvo mayormente correlacionada con la cobertura arborea. Falta evaluar el tamaño corporal. 
+
+En conclusión, el modelo se ajustó bien y fue informativo. Existe una correlación significativa entre idoneidad de habitat estimada por el modelo y la presencia y abundancia de la especie. \emph{O. festivum} se desempeña como una buena especie indicadora de la cobertura boscosa.
+
+Se espera una correlación entre abundancia y distribución pues se supone que ambas variables están limitadas por la combinación de variables ambientales físicas y bióticas que determinan el nicho multidimensional de la especie.
+
+Control de calidad:
+<<>>=
+subset(trmp.ll@data,rslt$FparLai_QC %in% 97 & dtt)
+
+table(rslt$LC1,dtt)
+subset(rslt,LC1 %in% 14 & dtt)
+
+with(subset(rslt, dtt),boxplot(Lai_1km~LC1,varwidth=T))
+subset(trmp.ll@data, dtt & Fpar_1km < .4)
+
+
+@ 
+
+<<>>=
+best.lm <- step(lm(PS~LF*AP*LE*sgrps,cbind(mds,mdsvr2)))
+
+@ 
+
+<<Riqueza>>=
+rqz05 <- with(subset(scr.NM,NM %in% c("09","24") & yr %in% "2005"),tapply(tvn,list(NM,spp),length))
+
+rqz05[is.na(rqz05)] <- 0
+estimateR(rqz05)
+table(subset(trmp.ll@data,HS>cop & !ss)[,"NM"])
+with(subset(trmp.ll@data,NM %in% trmp.ll@data$NM[trmp.ll@data$HS>cop]),aggregate(sfrz,list(NM=NM,year=year),function(x) sum(x)/24))
+colSums(subset(scrb.solis,NM %in% 22)[,6:158])
+
+
+
+tmp <- subset(scrb.solis,vst %in% trmp.ll@data[dtt,"vst"])
+rqz <- aggregate(tmp[,6:158],by=list(NM=tmp$NM,yr=tmp$yr),sum)
+rownames(rqz) <- paste(rqz$NM,rqz$yr)
+rqz <- rqz[,-(1:2)]
+rqz <- rqz[,colSums(rqz)>0]
+sort(colSums(rqz))
+
+table(mds$NM,substr(mds$fch,0,4),useNA="always")
+
+
+
+tmp <- subset(scrb.solis,NM %in% as.numeric(subset(trmp.ll@data,HS>cop)$NM))
+rqz <- aggregate(tmp[,6:158],by=list(NM=tmp$NM,yr=tmp$yr),sum)
+rownames(rqz) <- paste(rqz$NM,rqz$yr)
+rqz <- rqz[,-(1:2)]
+rowSums(rqz)
+
+estimateR(rqz)
+plot(log1p(rqz$Oxysternon.festivum)~
+     log1p(estimateR(rqz)[2,]))
+
+
+Oobs <- c(0,9,rqz$Oxysternon.festivum)
+Sest <- c(estimateR(rqz05)[2,],estimateR(rqz)[2,])
+cor.test(Sest,Oobs,method="spear",exact=F)
+
+tmp <- scrb.solis
+rqz <- aggregate(tmp[,6:158],by=list(NM=tmp$NM,yr=tmp$yr),sum)
+rownames(rqz) <- paste(rqz$NM,rqz$yr)
+rqz <- rqz[,-(1:2)]
+
+estimateR(rqz)
+plot(log1p(rqz$Oxysternon.festivum)~
+     estimateR(rqz)[2,])
+
+
+
+@ 
+
+%\bibliography{/home/mapoteca/NeoMapas/lib/BibTEX/DocumentosNM,/home/mapoteca/NeoMapas/lib/BibTEX/revlit}
+%\bibliography{/home/mapoteca/NeoMapas/lib/BibTEX/revlit}
+\bibliography{BIBDIR/BibTEX/DocumentosNM}
+
+
+\end{document}

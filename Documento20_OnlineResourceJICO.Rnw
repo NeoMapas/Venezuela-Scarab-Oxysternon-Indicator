@@ -1,0 +1,620 @@
+\documentclass[english,12pt]{article}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage[shiftmargins]{vmargin}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{lscape}
+\setpapersize{USletter}
+%%\setmarginsrb{left}{top}{right}{bottom}{headhgt}{headsep}{foothgt}{footskip}
+\setmarginsrb{2cm}{3cm}{3cm}{2cm}{0.5cm}{0.5cm}{0.5cm}{0.5cm}
+
+\usepackage[authoryear,sort]{natbib}
+\usepackage{titling}
+
+\pretitle{\begin{center} 
+\large Manuscript submitted to \emph{Journal of Insect Conservation} \par \hrule \\[0.4cm] \LARGE }
+
+\title{Oxysternon festivum Linné (Coleoptera: Scarabaidae) as an indicator species of forest quality in the basin of the Orinoco river, Venezuela }
+\posttitle{\par \\[1.5cm]
+ Online Resources 
+\end{center}\vskip 0.5em}
+
+\author{JR Ferrer-Paris, C Lozano, A Cardozo-Urdaneta \& A Thomas}
+\predate{\\ Centro de Estudios Botánicos y Agroforestales, Instituto Venezolano de Investigaciones Científicas (IVIC), Apartado 20632, Caracas 1020-A Venezuela. E-mail: ceba.lee@gmail.com. Permanent telephone / Fax: +58 (261) 798-0140.\\}
+
+\date{}%\today}
+\postdate{\hrule}
+%\renewcommand{\figurename}{Online Resource}
+\renewcommand{\tablename}{Online Resource}
+%\renewcommand{\sectionname}{Online Resource}
+
+\begin{document}
+
+\maketitle
+
+\bibliographystyle{BIBDIR/custom-bib/tesis}
+
+
+%\section*{Details of habitat suitability model}
+
+%We used MaxEnt (\emph{Maximum Entropy Species Distribution Modeling}, Version 3.3.3k) to fit the habitat suitability model. 
+
+%\section*{Variable selection}
+
+%We performed a variable hierarchical cluster analysis to discard highly correlated variables:
+
+
+\section{Detailed methods for the habitat suitability model}
+
+\subsection{Variable selection}
+
+A variable hierarchical cluster analysis on the values of 19 bioclimatic variables \citep{Hijmans2005} and an estimate of tree cover derived from AVHRR satellite imagery \citep{DeFries2000} is shown in Online Resource \ref{varclus}.
+
+\newpage
+\begin{center}
+\captionof{table}{Hierarchical cluster analysis of variable correlation (Spearman $\rho^2$).}
+\label{varclus}
+  \setkeys{Gin}{width=.9\textwidth}
+<<OnlineResourceFig1,fig=true,echo=false,width=6,height=4>>=
+plot(v0)
+abline(h=.6,lty=2,col=2)
+@ 
+\end{center}
+
+\subsection{Optimal settings of MaxEnt algorithm}
+
+MaxEnt implementation of maximum entropy relies on several parameters that affect the algorithm behaviour, thus we tested different values in order to find optimal for our study region and taxon. 
+
+We tested six different values for the regularisation multiplier \citep[beta = 0.5, 1, 2, 4, 8, 10;]{Anderson2011,Warren2011,Radosavljevic2014}, and four background selection procedures: 
+\begin{enumerate}
+\item N = 10000 random points from the study area \citep[the random sampling assumption,][see Online Resource \ref{RandomProcedure}]{Royle2012}, 
+  \item N = 10000 random points from the accessible area \citep[\emph{sensu}][see Online Resource \ref{RandomAccessProcedure}]{Barve2011}, 
+    \item N = 1703 localities in the study area with any scarabaeinae records from the same sources as above \citep[target group background sampling,][see Online Resource \ref{TargetProcedure}]{Phillips2008}, 
+      \item N = 434 localities in the accessible area with any scarabaeinae records (see Online Resource \ref{TargetAccessProcedure}). 
+\end{enumerate}
+          For (1) and (2) we tested  three different values of the default prevalence parameter \citep[0.5, 0.25, 0.125, 0.062;]{Royle2012,Radosavljevic2014}.
+%\section*{Model performance under different background selection procedures}
+
+Performance was very heterogeneous. For all background selection procedures, the AICc criterion favoured higher values of the regularisation parameter (beta=8 or 10) resulting in a limited number of selected model features, and thus smoother response curves and predictions. However, predictive performance evaluated with the independent test data of NeoMaps surveys resulted in several models with worse than random prediction (AUC<0.5, negative COR and D and/or Kappa=0), specially when background was sampled at random from the accessible area (Online Resouce \ref{RandomAccessProcedure}). These were discarded, regardless of their fit to calibration data. In general, evaluation on the training data set was a poor indicator of predictive performance on the test data set. The use of target taxon sampling localities was evidently the best option when considering the latter (Online Resource \ref{TargetProcedure}). Within this group, two models were equivalent in terms of AICc, but the model with beta=8 had significantly higher AUC (DeLong's test, Z=3.938, p <0.005), and better performance in COR and D. 
+                
+<<AICaleatorio,echo=false,results=tex>>=
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Aleatorio")$modelo)))
+nps <- subset(aucs,bkg=="Aleatorio")$np
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="Aleatorio")$modelo
+AICt$beta <- subset(aucs,bkg=="Aleatorio")$beta
+AICt$prev <- round(subset(aucs,bkg=="Aleatorio")$prev,2)
+slcmod <- AICt[order(AICt$delta.AICc),c("modelo","beta","prev","nparam","AICc")]
+xt1 <- xtable(cbind(slcmod[,-1],
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Model performance with random background selection procedure. Tuned parameters: \\texttt{beta} Beta regularisation multiplier, \\texttt{prev} Default prevalence. MaxEnt output: \\texttt{nparam} number of features in maximum entropy model, \\texttt{AICc} second order Akaike Information Criterion. Model performance on training data set (museum and literature records): \\texttt{tAUC} area under the receiver operating statistic curve, \\texttt{tACC} accuracy, \\texttt{tD2} Tjur's discrimination coefficient. Model performance on test data set (NeoMaps survey): \\texttt{AUC} area under the receiver operating statistic curve, \\texttt{COR} correlation, \\texttt{KAPPA} Cohen's Kappa coefficient, \\texttt{D2} Tjur's discrimination coefficient.",
+              label="RandomProcedure",
+              digits=c(0,1,2,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",table.placement="H")##,floating = FALSE)
+
+@ 
+
+
+
+<<AICregion,echo=false,results=tex>>=
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Region")$modelo)))
+nps <- subset(aucs,bkg=="Region")$np
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="Region")$modelo
+AICt$beta <- subset(aucs,bkg=="Region")$beta
+AICt$prev <- round(subset(aucs,bkg=="Region")$prev,2)
+slcmod <- AICt[order(AICt$delta.AICc),c("modelo","beta","prev","nparam","AICc")]
+xt1 <- xtable(cbind(slcmod[,-1],
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Model performance with accesible area background selection. Tuned parameters: \\texttt{beta} Beta regularisation multiplier, \\texttt{prev} Default prevalence. MaxEnt output: \\texttt{nparam} number of features in maximum entropy model, \\texttt{AICc} second order Akaike Information Criterion. Model performance on training data set (museum and literature records): \\texttt{tAUC} area under the receiver operating statistic curve, \\texttt{tACC} accuracy, \\texttt{tD2} Tjur's discrimination coefficient. Model performance on test data set (NeoMaps survey): \\texttt{AUC} area under the receiver operating statistic curve, \\texttt{COR} correlation, \\texttt{KAPPA} Cohen's Kappa coefficient, \\texttt{D2} Tjur's discrimination coefficient.",
+              label="RandomAccessProcedure",
+              digits=c(0,1,2,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",table.placement="H")
+
+@ 
+
+
+
+<<AICmuestreo,echo=false,results=tex>>=
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="Muestreo")$modelo)))
+nps <- subset(aucs,bkg=="Muestreo")$np
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="Muestreo")$modelo
+AICt$beta <- subset(aucs,bkg=="Muestreo")$beta
+AICt$prev <- round(subset(aucs,bkg=="Muestreo")$prev,2)
+slcmod <- AICt[order(AICt$delta.AICc),c("modelo","beta","nparam","AICc")]
+xt1 <- xtable(cbind(slcmod[,-1],
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Model performance with target taxon background selection within accesible area. Tuned parameters: \\texttt{beta} Beta regularisation multiplier, \\texttt{prev} Default prevalence. MaxEnt output: \\texttt{nparam} number of features in maximum entropy model, \\texttt{AICc} second order Akaike Information Criterion. Model performance on training data set (museum and literature records): \\texttt{tAUC} area under the receiver operating statistic curve, \\texttt{tACC} accuracy, \\texttt{tD2} Tjur's discrimination coefficient. Model performance on test data set (NeoMaps survey): \\texttt{AUC} area under the receiver operating statistic curve, \\texttt{COR} correlation, \\texttt{KAPPA} Cohen's Kappa coefficient, \\texttt{D2} Tjur's discrimination coefficient.",
+              label="TargetProcedure",
+              digits=c(0,1,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",table.placement="H")
+
+@ 
+
+
+
+<<AICregmst,echo=false,results=tex>>=
+prs <- stack(mget(sub("me","rw",subset(aucs,bkg=="RegMst")$modelo)))
+nps <- subset(aucs,bkg=="RegMst")$np
+AICt <- calc.aicc(nps, Olt[Olt$pa,1:2], prs)
+AICt$modelo <- subset(aucs,bkg=="RegMst")$modelo
+AICt$beta <- subset(aucs,bkg=="RegMst")$beta
+AICt$prev <- round(subset(aucs,bkg=="RegMst")$prev,2)
+slcmod <- AICt[order(AICt$delta.AICc),c("modelo","beta","nparam","AICc")]
+xt1 <- xtable(cbind(slcmod[,-1],
+                    aucs[match(slcmod$modelo,aucs$modelo),c(6:11,13)]),
+              caption="Model performance with target taxon background selection within accesible area. Tuned parameters: \\texttt{beta} Beta regularisation multiplier, \\texttt{prev} Default prevalence. MaxEnt output: \\texttt{nparam} number of features in maximum entropy model, \\texttt{AICc} second order Akaike Information Criterion. Model performance on training data set (museum and literature records): \\texttt{tAUC} area under the receiver operating statistic curve, \\texttt{tACC} accuracy, \\texttt{tD2} Tjur's discrimination coefficient. Model performance on test data set (NeoMaps survey): \\texttt{AUC} area under the receiver operating statistic curve, \\texttt{COR} correlation, \\texttt{KAPPA} Cohen's Kappa coefficient, \\texttt{D2} Tjur's discrimination coefficient.",
+              label="TargetAccessProcedure",
+              digits=c(0,1,0,2,3,3,3,3,3,3,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",table.placement="H")
+
+@ 
+
+\flushfloat
+\newpage
+
+\subsection{Variable importance}
+
+In the selected model, variable contributions follow a “broken-stick” distribution, only mean temperature (bio01) showed slightly larger contribution than expected (Online Resource \ref{VarImp}). Three variables (bio01, bio02 and bio18) had negative, nearly linear relationships with habitat suitability, while bio05, bio03 and tree cover had positive relationships, and bio12 and bio19 had very slight, almost constant effects (Online Resource \ref{VarResp}). 
+
+\begin{table}[H]
+\caption{Estimates of relative contributions of the environmental variables to the Maxent model. The percentage contribution represents the increase in  regularized gain during each iteration of the training algorithm.}
+\label{VarImp}
+  \setkeys{Gin}{width=.6\textwidth}
+<<OnlineResourceFig2,fig=true,echo=false,width=5,height=5>>=
+var.con <- meJ40@results[grep("contribution",row.names(meJ40@results)),]
+names(var.con) <- gsub(".contribution","",names(var.con))
+names(var.con) <- gsub("arboreo","tree",names(var.con))
+##sort(var.con)
+
+plot(sort(var.con),1:8,xlim=c(0,50),xlab="Percentage Variable Contribution",
+     ylab="",axes=F,lwd=2)
+axis(1)
+axis(2,1:8,names(sort(var.con)),las=2)
+abline(v=seq(0,50,10),lty=3,col="grey57")
+box()
+lines(vegan::bstick(meJ40, tot.var = 100,n=8),8:1,col=2)
+@ 
+\end{table}
+
+
+\begin{table}[H]
+\caption{Single variable response curves for the selected MaxEnt model. In each case the remaining variables are kept at their median values, the predicted value refers to habitat suitability in a logistic scale (HS).}
+\label{VarResp}
+\setkeys{Gin}{width=.9\textwidth}
+<<OnlineResourceFig3,fig=true,echo=false,width=7,height=4.5>>=
+response(meJ40)
+@ 
+\end{table}
+
+<<mapamejorado,eval=false,echo=false>>=
+ tiff(filename = "Fig1_JICO_MapOfestivum.tiff",
+          width = 174, height = 108, units = "mm", pointsize = 12,
+          compression = "none",
+          bg = "white", res = 600)
+
+par(mar=c(2.5,2.5,2,0))
+##plot(prJ00,col=brewer.pal(9,"BuGn"))
+plot(prJ40,
+     breaks=round(seq(0,1,length=10),2),
+     col=brewer.pal(9,"Oranges"))
+plot(TMWB,add=T,border="grey25")
+##plot(vzla,add=T,lty=2)
+text(c(-66.57078, -70.89897, -61.35996, -58.92834, -56.14914, -52.41753, -58.72121),
+     c(8.7775737,  3.6925297, -0.8237922,  5.4706822,  4.2277975, 6.3917873, 11.1571940),
+     c("Venezuela","Colombia","Brasil","Guyana","Suriname","French\nGuiana","Trinidad & Tobago"))
+
+##plot(prJ40>cop)
+##points(Olt,cex=0.5,pch=19,col=Olt$pa+1)
+##points(Olt[Olt$pa,],cex=0.5,pch=19,col="grey47")
+plot(Oshp,add=T,lwd=2)
+points(Olt[Olt$pa,],cex=0.7,pch=3,col="slateblue",lwd=1.5)
+NM.loc <- aggregate(coordinates(trmp.ll),list(NM=trmp.ll@data$NM),median)
+
+##with(subset(NM.loc,!NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+##     points(lon,lat,pch=10,cex=1.5,col="grey47"))
+##with(subset(NM.loc,!NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+##     symbols(lon,lat,circles=rep(.2,33-14),inches=F,add=T,fg="grey47"))
+
+with(subset(NM.loc,NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+     symbols(lon,lat,circles=rep(.37,14),inches=F,add=T,fg=1))
+
+with(subset(NM.loc,NM %in% c("09",66,61,55,59,13,34,35,39,41,24,22,65,93)),
+     text(lon,lat,NM,font=2,cex=.7,col=1))
+dev.off()
+@ 
+
+\newpage
+
+\section{Detailed methods for estimation of probability of presence and abundance in current surveys}
+
+We used zero-inflated regression models for count data \citep{Zeileis2008}. The null hypothesis is that probability of presence in the survey samples is directly related to HS estimated from the habitat suitability model with mean climatic variables, while abundance varies randomly around a fixed mean. Thus the null model ($\lambda_{(.)}\Psi_{(HS)}$) is represented as:
+
+\[\Psi(HS): \mathrm{logit}( y>0 ) = \beta_0 + HS + \epsilon_0\], 
+where HS is fitted as an offset term without coefficient, and $\epsilon_0$ has zero mean and binomial error distribution.
+
+\[\lambda(.): \log(y) = \beta_1 + \epsilon_1\], 
+where $\epsilon_1$ has zero mean and negative binomial error distribution.
+
+We expect that departure from this trend is due to the species response to the current vegetation condition (represented by NDVI and FPAR) and climatic variables (represented by LSTd and DET). Preliminary data exploration suggested linear responses to NDVI and FPAR and unimodal responses to LSTd and DET. The potential effect of HS was introduced in the model as an offset term for $\Psi$, and as a linear predictor for $\lambda$. Thus the full model ($\lambda_{(NDVI+FPAR+LSTd+DET+HS)}\Psi_{(NDVI+FPAR+LSTd+DET+HS)}$) is described as:
+
+\[
+\mathrm{logit}( y>0 ) = \beta_0 + \beta_1 NDVI + \beta_2 FPAR + \beta_3 LSTd + \beta_4 LSTd^2 + \beta_5 DET + \beta_6 DET^2 + HS + \epsilon_0
+\]
+where $\beta_0$ to $\beta_6$ are regression coefficients and $\epsilon_0$ has zero mean and binomial error distribution. 
+
+\[
+\log(y) = \beta_7 + \beta_8 NDVI + \beta_9 FPAR + \beta_{10} LSTd + \beta_{11} LSTd^2 + \beta_{12} DET + \beta_{13} DET^2 + \beta_{14} HS + \epsilon_1
+\]
+where $\beta_7$ to $\beta_{14}$ are regression coefficients and $\epsilon_1$ has zero mean and negative binomial error distribution.
+
+We tested several alternative hypothesis by considering different combinations of vegetation and climatic variables in each response, and HS in $\lambda$, while fixing the offset term in $\Psi$. Finally, we compared all alternatives models using AICc \citep{Burnham2002}. We used the best model to predict the expected probability of presence and abundance for different combinations of variables.
+
+\begin{landscape}
+  \begin{small}
+      \setlongtables 
+      \begin{longtable}{lcccccccc}
+    \caption{Model selection table for the mixture GLM with a binomial model of probability of presence ($\Psi$) and a negative binomial model for abundance ($\lambda$). Combinations of covariates for each component include climatic variables (LSTd: temperature, DET: difference in evapotranspiration), vegetation variables (NDVI: normalized difference vegetation index, FPAR: Fraction of photosynthetically active radiation) and habitat suitability (HS). Models are ordered by increasing second order Akaike Information Criterion (AICc). K: number of parameters. $R_{Nag}^2$: Nagelkerke's coefficient of determination.}
+     \hline
+      \endhead
+      \hline
+      \endfoot
+    
+<<GLM,echo=false,results=tex>>=
+n <- nrow(lms[[1]]$model)
+L0 <- logLik(lms[["Psi(HS)"]])
+LS <- unlist(lapply(lms,function(x) logLik(x)))
+maxR2 <- 1 - exp(2*L0*1/n)
+R2 <- (1-exp((-2/n) * (LS-L0)))/maxR2
+
+df1 <- as.data.frame(aictab(lms))[,c(1,2,3,4,6,7)]
+df1$Rsq <- R2[df1[,1]]
+
+colnames(df1) <- c("Model","K","AICc","Delta AICc","AICc weight","log-Likelihood","$R_{\\mathit{Nag}}^2$")
+
+df1[,1] <- gsub("^Psi\\(","\\$\\\\Psi_{(",gsub("\\)$",")}\\$",gsub("\\)Psi\\(",")}\\\\Psi_{(",gsub("Lambda\\(","\\$\\\\lambda_{(",df1[,1]))))
+    
+xt1 <- xtable(df1,
+              caption="",# (\$\\\Psi\$) ",
+              digits=c(0,0,0,2,2,2,2,3))
+
+print(xt1,include.rownames = FALSE,only.contents = TRUE,
+      caption.placement="top",sanitize.text.function=function(x){x})
+
+@ 
+  \end{longtable}
+      \end{small}
+\end{landscape}   
+
+\section{Detailed methods for the analysis of body size}
+
+%\subsection{Linear regression of body size}
+
+For the analysis of body size, we considered pronotum width (PW), elytra length (EL), femur length (FL) and dry weight (DW) as individual traits. Online Resource \ref{Volume} shows the results of the linear regression between individual DW and body size (the volume of the especimen, estimated as $[PW+EL]*PW^2$).
+
+<<echo=false,results=tex>>=
+dts <- mds[cc,]
+dts$DW <- dts$PS
+dts$EL <- dts$LE
+dts$PW <- dts$AP
+dts$morph <- dts$sgrps
+
+slm <- summary(lm(DW~I((PW^2*(PW*EL)))*morph,dts))
+attr(slm$terms,"term.labels") <- c("Body size","Group","Body size/Group")
+rownames(slm$coefficients) <- c("Intercept (females)","Slope body size",
+                                "Major males","Minor males",
+                                "Body size:Major males",
+                                "Body size:Minor males")
+
+
+xt1 <- xtable(slm,
+              caption=sprintf("Linear regression between individual dry-weight and body size for three groups: females, major and minor males. Residual standard error: %0.3f on %s degrees of freedom, multiple $R^2$: %0.3f, adjusted $R^2$: %0.3f, F-statistic: %0.2f on %s and %s degrees of freedom,  p-value: < %s.",slm$sigma,slm$df[2],slm$r.squared,slm$adj.r.squared,slm$fstatistic[1],slm$fstatistic[2],slm$fstatistic[3],0.001),
+              label="Volume")
+
+print(xt1,caption.placement="top")
+
+@ 
+
+For each trait we fitted a linear model with habitat suitability, vegetation and climatic covariates  taken from the corresponding trap location, and individual sex and morphotype included as a categorical covariate (MORPH) with three levels (female, major and minor males). The null hypothesis was that variation in length measurements and dry weight is explained only by sex and morphotype ($y = \beta_{0} + \beta_{1} MORPH + \epsilon$) , and we tested different combinations of current vegetation condition and climatic variables as in the analysis of abundance, with a full model represented as:
+
+\[
+ y = \beta_{0} + \beta_{1} MORPH + \beta_{2} NDVI + \beta_{3} FPAR + \beta_{4} LSTd + \beta_{5} LSTd^2 + \beta_{6} DET + \beta_{7} DET^2 + \beta_{8} HS + \epsilon
+\]
+where $\beta_{0}$ to $\beta_{8}$ are regression coefficients and  $\epsilon$ has zero mean and normal error distribution.
+
+<<figura2,eval=false,echo=false>>=
+mnx <- min(trmp.ll@data[ss,"Fpar_1km"])*.99999
+mxx <- max(trmp.ll@data[ss,"Fpar_1km"])*1.0001
+mny <- min(trmp.ll@data[ss,"v250m_16_days_NDVI"])*.99999
+mxy <- max(trmp.ll@data[ss,"v250m_16_days_NDVI"])*1.0001
+
+mnw <- min(trmp.ll@data[ss,"LST_Day_1km"])*.99999
+mxw <- max(trmp.ll@data[ss,"LST_Day_1km"])*1.0001
+mnz <- 0.7##min(trmp.ll@data[ss,"DET"])*.99999
+mxz <- max(trmp.ll@data[ss,"DET"])*1.0001
+##mxz <- 170##max(trmp.ll@data[ss,"ET_1km"])*1.0001
+
+x1 <- seq(mnx,mxx,length=25)
+x2 <- seq(mny,mxy,length=25)
+x3 <- seq(mnw,mxw,length=25)
+x4 <- seq(mnz,mxz,length=25)
+
+xg1 <- expand.grid(Fpar_1km=x1,
+                    v250m_16_days_NDVI=x2)
+xg2 <- expand.grid(LST_Day_1km=x3,
+                    DET=x4)
+nwdt <- cbind(xg1,xg2)
+nwdt$HS <- median(trmp.ll@data[ss,"HS"])
+
+##nwdt$LST_Day_1km <- mean(trmp.ll@data[ss,"LST_Day_1km"])
+##nwdt$ET_1km <- mean(trmp.ll@data[ss,"ET_1km"])
+
+z1 <- matrix(nwdt$Fpar_1km,ncol=25,nrow=25)
+z2 <- matrix(nwdt$v250m_16_days_NDVI,ncol=25,nrow=25)
+z3 <- matrix(nwdt$LST_Day_1km,ncol=25,nrow=25)
+z4 <- matrix(nwdt$DET,ncol=25,nrow=25)
+
+
+nwd2 <- nwdt
+nwd2$LST_Day_1km <-  mean(mdsvr2$LST_Day_1km)
+
+nwd2$DET <-  mean(mdsvr2$DET)
+
+prd.y <- predict(lms[[slc]],newdata=nwd2,type="zero")
+z3 <- matrix(prd.y,ncol=25,nrow=25)
+
+nwd2 <- nwdt
+nwd2$Fpar_1km <- mean(mdsvr2$Fpar_1km)
+nwd2$v250m_16_days_NDVI <- mean(mdsvr2$v250m_16_days_NDVI)
+
+prd.a <- predict(lms[[slc]],newdata=nwd2,type="count")
+z4 <- matrix(prd.a,ncol=25,nrow=25)
+
+ tiff(filename = "Fig2_JICO_MapOfestivum.tiff",
+          width = 129, height = 84, units = "mm", pointsize = 12,
+          compression = "none",
+          bg = "white", res = 600)
+par(mar=c(3,3,1,1))
+layout(matrix(1:2,ncol=2))
+image(x1,x2,1-z3,col=brewer.pal(9,"Blues"),breaks=c(0,.05,.1,.15,.25,.5,.75,1,10,10000000000),xlab=NA,ylab=NA)
+mtext("FPAR",1,2)
+mtext("NDVI",2,2)
+contour(x1,x2,1-z3,levels=c(.05,.1,.15,.25),add=T)
+with(trmp.ll@data[ss,],symbols(Fpar_1km,v250m_16_days_NDVI,circles=yy,inches=.05,fg=c(2,1)[1+(yy==0)],add=T))
+
+text(-.2,.975,"(a)",xpd=NA,cex=1.7)
+
+image(x3,x4,log1p(z4),col=brewer.pal(9,"Reds"),breaks=c(0,.05,.1,.15,.25,.5,.75,1,10,10000000000),xlab="LSTd",ylab="DET")
+mtext("LSTd",1,2)
+mtext("DET",2,2)
+contour(x3,x4,log1p(z4),levels=c(.05,.5,1),add=T)
+with(trmp.ll@data[ss,],
+     symbols(LST_Day_1km,DET,circles=ya,inches=.415,fg=c("aliceblue",1)[1+(ya==0)],add=T))
+
+text(17.5,.893,"(b)",xpd=NA,cex=1.7)
+
+dev.off()
+@ 
+
+
+<<GLMdw,echo=false,results=tex>>=
+df1 <- as.data.frame(aictab(PS.lst))[,c(1,2,3,4,6,7)]
+df1$Rsq <- unlist(lapply(PS.lst,function(x) summary(x)$adj.r.squared))[df1[,1]]
+colnames(df1) <- c("Model","K","AICc","Delta AICc","AICc weight","log-Likelihood","$R_{\\mathit{adj}}^2$")
+
+df1[,1] <- gsub("PS","DW",gsub("C","LSTd+DET",gsub("V","NDVI+FPAR",df1[,1])))
+xt1 <- xtable(df1,
+              caption="Model selection table for the GLM of dry weight (DW). Combinations of covariates for each component include climatic variables (LSTd: temperature, DET: difference in evapotranspiration), vegetation variables (NDVI: normalized difference vegetation index, FPAR: Fraction of photosynthetically active radiation) and habitat suitability (HS). Models are ordered by increasing second order Akaike Information Criterion (AICc). K: number of parameters.",# (\$\\\Psi\$) ",
+              digits=c(0,0,0,2,2,2,2,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",table.placement="H",
+      sanitize.colnames.function=function(x){x})
+
+@
+
+<<GLMpw,echo=false,results=tex>>=
+df1 <- as.data.frame(aictab(AP.lst))[,c(1,2,3,4,6,7)]
+df1$Rsq <- unlist(lapply(AP.lst,function(x) summary(x)$adj.r.squared))[df1[,1]]
+colnames(df1) <- c("Model","K","AICc","Delta AICc","AICc weight","log-Likelihood","$R_{\\mathit{adj}}^2$")
+
+df1[,1] <- gsub("AP","PW",gsub("C","LSTd+DET",gsub("V","NDVI+FPAR",df1[,1])))
+xt1 <- xtable(df1,
+              caption="Model selection table for the GLM of pronotum width (PW).
+ Combinations of covariates for each component include climatic variables (LSTd: temperature, DET: difference in evapotranspiration), vegetation variables (NDVI: normalized difference vegetation index, FPAR: Fraction of photosynthetically active radiation) and habitat suitability (HS).
+Models are ordered by increasing second order Akaike Information Criterion (AICc). K: number of parameters.",# (\$\\\Psi\$) ",
+              digits=c(0,0,0,2,2,2,2,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",
+      sanitize.colnames.function=function(x){x},table.placement="H")
+
+@
+
+
+<<GLMle,echo=false,results=tex>>=
+df1 <- as.data.frame(aictab(LE.lst))[,c(1,2,3,4,6,7)]
+df1$Rsq <- unlist(lapply(LE.lst,function(x) summary(x)$adj.r.squared))[df1[,1]]
+colnames(df1) <- c("Model","K","AICc","Delta AICc","AICc weight","log-Likelihood","$R_{\\mathit{adj}}^2$")
+
+df1[,1] <- gsub("LE","EL",gsub("C","LSTd+DET",gsub("V","NDVI+FPAR",df1[,1])))
+xt1 <- xtable(df1,
+              caption="Model selection table for the GLM of elytra's length (EL). Combinations of covariates for each component include climatic variables (LSTd: temperature, DET: difference in evapotranspiration), vegetation variables (NDVI: normalized difference vegetation index, FPAR: Fraction of photosynthetically active radiation) and habitat suitability (HS). Models are ordered by increasing second order Akaike Information Criterion (AICc). K: number of parameters.",# (\$\\\Psi\$) ",
+              digits=c(0,0,0,2,2,2,2,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",
+      sanitize.colnames.function=function(x){x},table.placement="H")
+
+@
+
+
+<<GLMfl,echo=false,results=tex>>=
+
+df1 <- as.data.frame(aictab(LF.lst))[,c(1,2,3,4,6,7)]
+df1$Rsq <- unlist(lapply(LF.lst,function(x) summary(x)$adj.r.squared))[df1[,1]]
+colnames(df1) <- c("Model","K","AICc","Delta AICc","AICc weight","log-Likelihood","$R_{\\mathit{adj}}^2$")
+
+df1[,1] <- gsub("LF","FL",gsub("C","LSTd+DET",gsub("V","NDVI+FPAR",df1[,1])))
+xt1 <- xtable(df1,
+              caption="Model selection table for the GLM of femur length (FL). 
+Combinations of covariates for each component include climatic variables (LSTd: temperature, DET: difference in evapotranspiration), vegetation variables (NDVI: normalized difference vegetation index, FPAR: Fraction of photosynthetically active radiation) and habitat suitability (HS). 
+ Models are ordered by increasing second order Akaike Information Criterion (AICc). K: number of parameters.",# (\$\\\Psi\$) ",
+              digits=c(0,0,0,2,2,2,2,3))
+
+print(xt1,include.rownames = FALSE,caption.placement="top",
+      sanitize.colnames.function=function(x){x},table.placement="H")
+
+@ 
+
+
+<<figura3,eval=false,echo=false>>=
+
+mnx <- min(trmp.ll@data[ss,"Fpar_1km"])*.99999
+mxx <- max(trmp.ll@data[ss,"Fpar_1km"])*1.0001
+mny <- 0.6##min(trmp.ll@data[ss,"v250m_16_days_NDVI"])*.99999
+mxy <- max(trmp.ll@data[ss,"v250m_16_days_NDVI"])*1.0001
+
+mnw <- min(trmp.ll@data[ss,"LST_Day_1km"])*.99999
+mxw <- max(trmp.ll@data[ss,"LST_Day_1km"])*1.0001
+mnz <- 0.7##min(trmp.ll@data[ss,"DET"])*.99999
+mxz <- max(trmp.ll@data[ss,"DET"])*1.0001
+##mxz <- 170##max(trmp.ll@data[ss,"ET_1km"])*1.0001
+
+x1 <- seq(mnx,mxx,length=25)
+x2 <- seq(mny,mxy,length=25)
+x3 <- seq(mnw,mxw,length=25)
+x4 <- seq(mnz,mxz,length=25)
+
+xg1 <- expand.grid(Fpar_1km=x1,
+                    v250m_16_days_NDVI=x2)
+xg2 <- expand.grid(LST_Day_1km=x3,
+                    DET=x4)
+nwdt <- cbind(xg1,xg2)
+nwdt$HS <- median(trmp.ll@data[ss,"HS"])
+
+nwd2 <- nwdt
+nwd2$LST_Day_1km <-  mean(mdsvr2$LST_Day_1km)
+
+nwd2$DET <-  mean(mdsvr2$DET)
+nwd2$sgrps <- "M1"
+prd.y <- predict(PS.lst[["PS(V+C+HS)"]],newdata=nwd2,type="response")
+z5 <- matrix(prd.y,ncol=25,nrow=25)
+
+nwd2 <- nwdt
+nwd2$Fpar_1km <- mean(mdsvr2$Fpar_1km)
+nwd2$v250m_16_days_NDVI <- mean(mdsvr2$v250m_16_days_NDVI)
+nwd2$sgrps <- "M1"
+prd.a <- predict(PS.lst[["PS(V+C+HS)"]],newdata=nwd2,type="response")
+z6 <- matrix(prd.a,ncol=25,nrow=25)
+
+ tiff(filename = "Fig3_JICO_Ofestivum.tiff",
+          width = 129, height = 84, units = "mm", pointsize = 12,
+          compression = "none",
+          bg = "white", res = 600)
+par(mar=c(3,3,1,1))
+
+layout(matrix(1:2,ncol=2))
+
+ image(x1,x2,z5,col=brewer.pal(9,"Greens"),
+       breaks=c(0,.3,.35,.4,.45,.5,.55,.6,.65,.75),xlab=NA,ylab=NA)
+mtext("FPAR",1,2)
+mtext("NDVI",2,2)
+
+contour(x1,x2,z5,levels=c(.4,.45,.5,.55,.6),add=T)
+with(cbind(mds,mdsvr2),
+     symbols(Fpar_1km,v250m_16_days_NDVI,circles=PS,
+             inches=.1,add=T))
+##text(-.3,.95,"(a)",xpd=NA,cex=2)
+text(-.2,.96,"(a)",xpd=NA,cex=1.7)
+
+image(x3,x4,z6,col=brewer.pal(9,"Oranges"),
+      breaks=c(0.05,.1,.15,.2,.25,.3,.35,.4,.45,.5),xlab=NA,ylab=NA)
+mtext("LSTd",1,2)
+mtext("DET",2,2)
+
+contour(x3,x4,z6,levels=c(.2,.25,.3,.35,.4),add=T)
+with(cbind(mds,mdsvr2),
+     symbols(jitter(LST_Day_1km),jitter(DET),circles=PS,
+             inches=.1,add=T))
+text(17.5,.89,"(b)",xpd=NA,cex=1.7)
+##text(16,.8885,"(b)",xpd=NA,cex=2)
+
+dev.off()
+@ 
+
+
+<<figura4,eval=false,echo=false>>=
+
+rownames(pca1$CCA$biplot) <- c("FPAR","LSTd","LSTd2","NDVI","DET","DET2","BAIT","HS")
+
+ tiff(filename = "Fig4_JICO_Ofestivum.tiff",
+          width = 129, height = 84, units = "mm", pointsize = 12,
+          compression = "none",
+          bg = "white", res = 600)
+layout(matrix(1:2,ncol=2))
+par(mar=c(3,3,1,1))
+ord1 <- plot(pca1,type="n",xlab="Axis 1",ylab="Axis 2",xlim=c(-.5,2),
+             ylim=c(-1.8,1.5))
+mtext("Axis 1",1,2)
+mtext("Axis 2",2,2)
+
+symbols(scores(pca1, choices=1, display="sites"),
+        scores(pca1, choices=2, display="sites"),
+        circles=log1p(bm),add=T,inches=.125)
+
+##text(pca1, display="cn",choice=1:2,lwd=c(rep(1:2,2),rep(1,2),rep(2,1)),
+##     col=c(rep(c("grey47","red"),2),rep("grey47",2),rep("red",2)),axis.bp=F,cex=.5)
+arrows(0,0,ord1$biplot[,1]*1.3,ord1$biplot[,2]*1.3,angle=12,length=.12,
+       lwd=2,
+       col=c(rep(c(NA,"red"),2),rep(NA,3),rep("red",1)))
+##text(ord1, what="biplot",col="darkred",
+##     select=c(2,4,8),adj=.5,cex=.8)
+text(ord1$biplot[c(2,4,8),1]*c(1.8,1,1.8),ord1$biplot[c(2,4,8),2]*c(1.8,1.8,1.8),
+     rownames(ord1$biplot)[c(2,4,8)],cex=.8,col="darkred")
+
+text(-1.2,1.6,"(a)",xpd=NA,cex=1.8)
+
+ord1 <- plot(pca1,choices=2:3,type="n",xlab="Axis 2",ylab="Axis 3",
+             ylim=c(-1.8,2.5))
+text(-2.85,2.55,"(b)",xpd=NA,cex=1.8)
+
+mxs=1.5
+for (k in seq(along=bdt[,1])[rowSums(bdt) != bdt[,1]])
+    if (sum(bdt[k,])>0)
+        floating.pie(scores(pca1, choices=2, display="sites")[k],
+                     scores(pca1, choices=3, display="sites")[k],
+                     bdt[k,],edges=200,
+                     radius=.15, ##log1p(sum(bdt[k,]))/mxs,
+                     col=c(NA,"darkblue","lightblue")[bdt[k,]>0],
+                     shadow=FALSE)
+arrows(0,0,ord1$biplot[,1]*1.3,ord1$biplot[,2]*1.3,angle=12,length=.12,
+       lwd=2,
+       col=c(NA,NA,NA,"red",NA,"red","red",NA))
+text(ord1$biplot[c(4,6:7),1]*1.8,ord1$biplot[c(4,6:7),2]*1.8,
+     rownames(ord1$biplot)[c(4,6:7)],cex=.8,col="darkred")
+
+##ord1, what="biplot",col="darkred",
+##     select=c(1,4,6:7)
+
+
+dev.off()
+@ 
+
+
+
+
+%The biomass matrix and the environmental variables were related using the following formula:
+
+%M(BF,BM,Bm) = $\alpha$0 NDVI + $\alpha$1 FPAR + $\alpha$2 LSTd + $\alpha$3 LSTd2 + $\alpha$4 DET + $\alpha$5 DET2 + $\alpha$6 HS + R, where $\alpha$0 to $\alpha$6  are canonical eigenvectors, and R is the matrix of residual components.
+
+%The redundancy analysis calculates the percentage of variance explained by the chosen set of variables. We assessed the significance of individual variables by means of a permutation test of marginal effects (Legendre et al. 2011). 
+
+\flushfloat
+\newpage
+
+\bibliography{BIBDIR/BibTEX/Oxysternon}
+\end{document}

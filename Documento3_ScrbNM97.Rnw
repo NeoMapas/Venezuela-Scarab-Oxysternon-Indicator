@@ -1,0 +1,359 @@
+\documentclass[spanish,12pt]{article}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage[shiftmargins]{vmargin}
+\setpapersize{USletter}
+%%\setmarginsrb{left}{top}{right}{bottom}{headhgt}{headsep}{foothgt}{footskip}
+\setmarginsrb{3.2cm}{2cm}{1.8cm}{2cm}{0.5cm}{0.5cm}{0.5cm}{0.5cm}
+
+\usepackage[authoryear,sort]{natbib}
+
+
+\title{Análisis de la variación en tamaño de los Escarabajos colectados por NeoMapas}
+\author{JR Ferrer-Paris, Coordinador Bioinformática de BiodiVen}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+
+Variación geográfica en el tamaño de los escarabajos coprófagos, dimorfismo sexual y polimorfismo en los machos de algunas especies. Buscar referencias.
+
+\section{Materiales y Métodos}
+
+Las muestras provienen de la colección de invertebrados de NeoMapas (Iniciativa para el Mapeo de la Biodiversidad Neotropical), la cual forma parte de las Colecciones Biológicas del IVIC (nro. '028' en el Registro Nacional de Colecciones).
+
+Seleccionamos algunas especies de mariposas según su abundancia o frecuencia en la colección y según observaciones previas de diferencias en tamaño. Realizamos una medición preliminar con una serie de individuos escogidos arbitrariamente para calibrar los métodos de medición.
+
+Utilizamos dos técnicas de medición: medición directa y manual de la longitud del ala utilizando un Vernier, y medición indirecta de longitud y área alar a partir de imágenes digitales y un programa de procesamiento de imágenes.
+
+Para medir la longitud alar probamos con diferentes convenciones de medición del ala anterior: base alar a final de la última vena radial (R4 o R5), base alar hasta final de la vena costal, base alar hasta ápice del ala. 
+
+\subsection{Especies seleccionadas}
+
+\begin{itemize}
+\item \emph{Oxysternon festivum festivum} 
+
+\end{itemize}
+
+\subsection{Datos utilizados}
+
+Accedemos directamente a los datos en la base de datos utilizando un archivo de acceso preconfigurado llamado \texttt{acceso.cnf} en la carpeta de inicio.  
+
+<<conectado>>=
+library(RMySQL)
+require(gdata)
+require(lattice)
+options(width=65)
+
+mi.sql <- dbDriver("MySQL")
+archivo.sql <- "~/NeoMapas/lib/sql/acceso.cnf"
+
+c.nm1 <- dbConnect(mi.sql, group="Escarabajos",
+     default.file=archivo.sql)
+
+tmp1 <- dbGetQuery(c.nm1,"SET NAMES 'utf8'")
+tmp1 <- dbGetQuery(c.nm1,"SET CHARACTER SET utf8")
+@
+
+Primero buscamos en la base de datos la información sobre todas las mediciones realizadas. Guardamos por separado las mediciones hechas con Vernier y aquellas hechas con programas de manipulación de imágenes (en este caso \texttt{GIMP}).
+
+<<Mediciones,eval=TRUE, echo=TRUE>>=
+prg <- paste("SELECT m.cdg_ejemplar as cdg,j.cdg_especie as cdge,",
+             "CONCAT(e.genero,' ',e.especie) as spp,",
+             "l.NM,l.CN,l.lat,",
+             "l.lon,YEAR(t.fecha1) as YR, metodo_medicion,",
+             "medido_por, variable, valor",
+             "FROM MEDICIONES_EJEMPLARES m",
+             "LEFT JOIN EJEMPLARES j ON j.cdg_ejemplar=m.cdg_ejemplar",
+             "LEFT JOIN ESPECIE e ON j.cdg_especie=e.cdg_taxon",
+             "LEFT JOIN VISITAS t on j.cdg_tvn=t.cdg_tvn",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+             "WHERE metodo_medicion='Vernier'",
+             sep=" ")
+dat.vernier <- dbGetQuery(c.nm1,prg)
+
+
+@ 
+
+Seleccionamos las especies con más de 30 mediciones y buscamos toda la información sobre distribución y abundancia.
+
+<<DB,eval=TRUE,echo=TRUE>>=
+tt <- table(dat.vernier$cdge)
+spps <- names(tt)[tt>30]
+
+prg <- paste("SELECT j.cdg_especie as cdge,",
+             "CONCAT(e.genero,' ',e.especie) as spp,",
+             "l.NM,l.CN,l.lat,",
+             "l.lon,YEAR(t.fecha1) as YR",
+             "FROM EJEMPLARES j",
+             "LEFT JOIN ESPECIE e ON j.cdg_especie=e.cdg_taxon",
+             "LEFT JOIN VISITAS t on j.cdg_tvn=t.cdg_tvn",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+	     "WHERE j.cdg_especie IN",
+	     "(",paste("'",spps,"'",collapse=",",sep=""),")",
+             sep=" ")
+jmp <- dbGetQuery(c.nm1,prg)
+
+prg <- paste("SELECT TIME_TO_SEC(TIMEDIFF(t.fecha2,t.fecha1))/60 as dur,",
+             "l.NM,l.CN,l.lat,l.lon,YEAR(t.fecha1) as YR",
+             "FROM VISITAS t ",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+             sep=" ")
+sfrz <- dbGetQuery(c.nm1,prg)
+sfrz$sfrz <- sfrz$dur
+
+head(jmp)
+head(sfrz)
+
+
+dbDisconnect(c.nm1)
+@
+
+\section{Análisis de datos}
+
+\subsection{Comparación métodos de medición}
+
+<<datosSolis>>=
+load(file="~/NeoMapas/Rdata/scrbsolis.rda")
+@ 
+
+
+<<>>=
+require(RMySQL)
+require(gdata)
+require(xtable)
+options(width=65)
+archivo.sql <- "~/NeoMapas/lib/sql/acceso.cnf"
+
+mi.sql <- dbDriver("MySQL")
+c.nm2 <- dbConnect(mi.sql, group="Escarabajos",
+     default.file=archivo.sql)
+tmp1 <- dbGetQuery(c.nm2,"SET NAMES 'utf8'")
+tmp1 <- dbGetQuery(c.nm2,"SET CHARACTER SET utf8")
+
+############### 
+##query
+###############
+
+prg <- paste("SELECT l.NM, YEAR(v.fecha1) as yr,",
+             "DATE_FORMAT(t.fecha2,'%d/%m/%Y') as fch,",
+             "v.cdg_trampa as vst,",
+             "t.pequenos,t.grandes,t.medianos,",
+             "t.cdg_tvn as tvn,",
+             "t.cebo as cebo,",
+             "(TIME_TO_SEC(TIMEDIFF(t.fecha2,",
+             "t.fecha1)))/3600 as dur,",
+             "Prd, lat, lon, alt ",
+             "FROM TRAMPAS v",
+             "LEFT JOIN LOCALIDADES l",
+             "   on v.cdg_localidad=l.cdg_localidad",
+             "  LEFT JOIN VISITAS t",
+             "   on v.cdg_trampa=t.cdg_trampa",
+             "  WHERE  (l.NM IN ('97') && year(t.fecha1)=2008)",
+             "  ORDER BY vst, fch")
+trmp.NM <- dbGetQuery(c.nm2,prg)
+trmp.NM$sfrz <- trmp.NM$dur
+table(trmp.NM$NM,trmp.NM$yr)
+trmp.NM$sfrz.a <- unname(unlist(tapply(trmp.NM$sfrz,trmp.NM$vst,cumsum)))
+trmp.NM <- trmp.NM[trmp.NM$dur>0,]
+trmp.NM$njmp <- rowSums(trmp.NM[,c("pequenos","medianos","grandes")],na.rm=T)
+
+## falta filtrar las especies que no son scarabaeinae (de las identificaciones de dAscencao)
+prg <- paste("SELECT l.NM, YEAR(v.fecha1) as yr,",
+             "v.cdg_trampa as vst,",
+             "t.cdg_tvn as tvn,",
+             "cdg_ejemplar as jmp,",
+             "e.cdg_taxonomia as spp,",
+             "genero, especie, familia",
+             "FROM EJEMPLARES j",
+             "LEFT JOIN ESPECIE e",
+             "   on e.cdg_taxon=j.cdg_especie",
+             "  LEFT JOIN VISITAS t",
+             "   on j.cdg_tvn=t.cdg_tvn",
+             "LEFT JOIN TRAMPAS v",
+             "   on v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l",
+             "   on v.cdg_localidad=l.cdg_localidad",
+             "  WHERE familia like '%Scarabaeinae%'",
+             "   &&  (l.NM IN ('97') && year(t.fecha1)=2008)")
+scrb.NM <- dbGetQuery(c.nm2,prg)
+table(scrb.NM$NM,scrb.NM$yr)
+
+dbDisconnect(c.nm2)
+
+
+@ 
+\subsection{Diferencias entre transectas}
+
+\section{Resultados}
+
+\section{Análisis}
+
+\section{Recomendaciones}
+
+
+<<NM97>>=
+
+## 300 individuos en el IVIC! y un ind en Aroa
+Cnth.NM <- aggregate(scrb.solis[,grep("Canthonella",colnames(scrb.solis))],list(NM=scrb.solis$NM,yr=scrb.solis$yr),sum)
+
+ss <- scrb.solis$NM %in% "97" & scrb.solis$yr %in% "08"
+
+NM.97 <- aggregate(scrb.solis[ss,6:126],list(Prd=scrb.solis$Prd[ss],vst=scrb.solis$vst[ss],fch=scrb.solis$Fecha[ss]),sum)
+
+slc <- which(colSums(NM.97[,-(1:3)])>0)
+NM.97 <- NM.97[,c("Prd","vst","fch",names(slc))]
+
+ NM.97$Prd <- trmp.NM$Prd[match(NM.97$vst,trmp.NM$vst)]
+NM.97$tvn <- trmp.NM$tvn[match(paste(NM.97$vst,NM.97$fch),paste(trmp.NM$vst,sub("2008","08",trmp.NM$fch)))]
+NM.97$cebo <- trmp.NM$cebo[match(paste(NM.97$vst,NM.97$fch),paste(trmp.NM$vst,sub("2008","08",trmp.NM$fch)))]
+
+
+
+subset(NM.97,is.na(Prd))
+
+
+mtz <- tapply(scrb.solis[ss,grep("Canthonella",colnames(scrb.solis))],list(vst=scrb.solis$Grp[ss],scrb.solis$Fecha[ss]),sum)
+
+colSums(mtz,na.rm=T)
+rowSums(mtz,na.rm=T)
+
+mtz <- tapply(scrb.solis[ss,grep("Canthonella",colnames(scrb.solis))],list(vst=scrb.solis$vst[ss],scrb.solis$Fecha[ss]),sum)
+
+
+
+
+@ 
+
+Un grupo de trampas colocadas entre el 19 y 22 de agosto:
+
+<<>>=
+with(subset(trmp.NM,fch %in% c("20/08/2008", "21/08/2008", "22/08/2008")),table(vst,fch))
+
+s1 <- trmp.NM$fch %in% c("20/08/2008", "21/08/2008", "22/08/2008")
+plot(lat~lon,trmp.NM,subset=s1,pch=NA)
+with(subset(trmp.NM,s1),text(lon,lat,sub("97-G","",Prd),cex=.75))
+
+@ 
+dos grupos entre el 25 y 28 de agosto, 
+<<>>=
+with(subset(trmp.NM,fch %in% c("25/08/2008", "26/08/2008", "27/08/2008", "28/08/2008")),table(vst,fch))
+
+s1 <- trmp.NM$fch %in% c("25/08/2008", "26/08/2008", "27/08/2008", "28/08/2008")
+plot(lat~lon,trmp.NM,subset=s1,pch=NA)
+with(subset(trmp.NM,s1),text(lon,lat,sub("97-G","",Prd),cex=.75))
+
+
+@ 
+
+y todos los grupos colocados entre el 8 y el 12 de septiembre
+<<>>=
+with(subset(trmp.NM,fch %in% c("08/09/2008", "09/09/2008", "10/09/2008", "11/09/2008", "12/09/2008")),table(vst,fch))
+
+with(subset(trmp.NM,fch %in% c("08/09/2008", "09/09/2008", "10/09/2008", "11/09/2008", "12/09/2008")),table(Prd,cebo))
+
+
+ss <- NM.97$fch %in% c("08/09/08", "09/09/08", "10/09/08", "11/09/08", "12/09/08")
+
+tt <- aggregate(NM.97[ss,names(slc)],list(trmp=NM.97$vst[ss],cebo=NM.97$cebo[ss]),sum)
+
+
+@ 
+
+No vale la pena hacer esto nuevamente
+
+<<>>=
+require(labdsv)
+
+iV.tds <- indval(tt[,-(1:2)],tt$cebo)
+
+cb1 <- NA
+cb1[tt$cebo %in% c("bosta de caballo","heces humanas","heces de perro")] <- 1
+cb1[tt$cebo %in% c("hongos")] <- 2
+cb1[tt$cebo %in% c("higado","pollo","rata")] <- 3
+cb1[tt$cebo %in% c("pescado","pulmon")] <- 4
+iV.grp <- indval(tt[,-(1:2)],cb1)
+
+cb2 <- NA
+cb2[tt$cebo %in% c("bosta de caballo","heces humanas","heces de perro")] <- 1
+cb2[tt$cebo %in% c("hongos")] <- 2
+cb2[tt$cebo %in% c("higado","pollo","rata","pescado","pulmon")] <- 3
+iV.gr2 <- indval(tt[,-(1:2)],cb2)
+
+cb3 <- NA
+cb3[tt$cebo %in% c("bosta de caballo","heces humanas","heces de perro")] <- 1
+cb3[tt$cebo %in% c("higado","pollo","rata","pescado","pulmon")] <- 2
+iV.gr3 <- indval(tt[!tt$cebo %in% "hongos",-(1:2)],cb3[!tt$cebo %in% "hongos"])
+
+cb4 <- NA
+cb4[tt$cebo %in% c("bosta de caballo")] <- 1
+cb4[tt$cebo %in% c("heces humanas")] <- 2
+cb4[tt$cebo %in% c("heces de perro")] <- 3
+cb4[tt$cebo %in% c("higado","pollo","rata","pescado","pulmon")] <- 4
+iV.gr4 <- indval(tt[!tt$cebo %in% "hongos",-(1:2)],cb4[!tt$cebo %in% "hongos"])
+
+iV.hcs <- indval(tt[,-(1:2)],tt$cebo %in% c("heces humanas","heces de perro"))
+iV.hcs <- indval(tt[,-(1:2)],tt$cebo %in% c("bosta de caballo","heces humanas","heces de perro"))
+iV.hng <- indval(tt[,-(1:2)],tt$cebo %in% c("hongos"))
+iV.crn <- indval(tt[,-(1:2)],tt$cebo %in% c("higado","pescado",
+                                  "pollo","pulmon","rata" ))
+
+@ 
+
+<<>>=
+ss <- NM.97$fch %in% c("08/09/08", "09/09/08", "10/09/08", "11/09/08", "12/09/08")
+
+tt <- aggregate(NM.97[ss,names(slc)],list(Grp=NM.97$Prd[ss],trmp=NM.97$vst[ss],cebo=NM.97$cebo[ss]),sum)
+
+require(vegan)
+mtz <- tt[,-(1:3)]
+
+d1 <- vegdist(mtz[rowSums(mtz)>0,],"chao")
+ adonis(d1~Grp*cebo,data=subset(tt,rowSums(mtz)>0))
+
+iV.grp <- indval(mtz,tt$Grp)
+
+@ 
+
+<<>>=
+s1 <- trmp.NM$fch %in% c("08/09/2008", "09/09/2008", "10/09/2008", "11/09/2008", "12/09/2008")
+plot(lat~lon,trmp.NM,subset=s1,pch=NA)
+with(subset(trmp.NM,s1),text(lon,lat,sub("97-G","",Prd),cex=.75))
+ table(tt$Grp)
+
+@ 
+
+Capscale con grupos
+<<fig=true>>=
+cs1 <- capscale(d1~1, sqrt.dist = FALSE,add=T)
+clrs <- rainbow(8)
+plot(cs1)
+k <- 1
+for (j in unique(tt$Grp)) {
+  ordihull(cs1,groups=tt$Grp[rowSums(mtz)>0],show.groups=j,label=T,
+              col=clrs[k],border=clrs[k],alpha=100,lty=1,draw = "polygon")
+  k <- k+1
+}
+@ 
+
+Cebo
+
+<<fig=true>>=
+
+plot(cs1)
+k <- 1
+for (j in unique(tt$cebo[rowSums(mtz)>0])) {
+  ordihull(cs1,groups=tt$cebo[rowSums(mtz)>0],show.groups=j,label=T,
+              col=clrs[k],border=clrs[k],alpha=100,lty=1,draw = "polygon")
+  k <- k+1
+}
+@ 
+
+Mejor hacer el adonis con tipo de vegetacion o NDVI y con altura
+
+\end{document}

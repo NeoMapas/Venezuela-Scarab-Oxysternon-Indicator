@@ -1,0 +1,192 @@
+\documentclass[spanish,12pt]{article}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage[shiftmargins]{vmargin}
+\setpapersize{USletter}
+%%\setmarginsrb{left}{top}{right}{bottom}{headhgt}{headsep}{foothgt}{footskip}
+\setmarginsrb{3.2cm}{2cm}{1.8cm}{2cm}{0.5cm}{0.5cm}{0.5cm}{0.5cm}
+
+\usepackage[authoryear,sort]{natbib}
+
+
+\title{Análisis de la variación en tamaño de los Escarabajos colectados por NeoMapas}
+\author{JR Ferrer-Paris, Coordinador Bioinformática de BiodiVen}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+
+Variación geográfica en el tamaño de los escarabajos coprófagos, dimorfismo sexual y polimorfismo en los machos de algunas especies. Buscar referencias.
+
+\section{Materiales y Métodos}
+
+Las muestras provienen de la colección de invertebrados de NeoMapas (Iniciativa para el Mapeo de la Biodiversidad Neotropical), la cual forma parte de las Colecciones Biológicas del IVIC (nro. '028' en el Registro Nacional de Colecciones).
+
+Seleccionamos algunas especies de mariposas según su abundancia o frecuencia en la colección y según observaciones previas de diferencias en tamaño. Realizamos una medición preliminar con una serie de individuos escogidos arbitrariamente para calibrar los métodos de medición.
+
+Utilizamos dos técnicas de medición: medición directa y manual de la longitud del ala utilizando un Vernier, y medición indirecta de longitud y área alar a partir de imágenes digitales y un programa de procesamiento de imágenes.
+
+Para medir la longitud alar probamos con diferentes convenciones de medición del ala anterior: base alar a final de la última vena radial (R4 o R5), base alar hasta final de la vena costal, base alar hasta ápice del ala. 
+
+\subsection{Especies seleccionadas}
+
+\begin{itemize}
+\item \emph{Oxysternon festivum festivum} 
+
+\end{itemize}
+
+\subsection{Datos utilizados}
+
+Accedemos directamente a los datos en la base de datos utilizando un archivo de acceso preconfigurado llamado \texttt{acceso.cnf} en la carpeta de inicio.  
+
+<<>>=
+library(RMySQL)
+require(gdata)
+require(lattice)
+options(width=65)
+
+mi.sql <- dbDriver("MySQL")
+archivo.sql <- "~/NeoMapas/lib/sql/acceso.cnf"
+
+c.nm1 <- dbConnect(mi.sql, group="Escarabajos",
+     default.file=archivo.sql)
+
+tmp1 <- dbGetQuery(c.nm1,"SET NAMES 'utf8'")
+tmp1 <- dbGetQuery(c.nm1,"SET CHARACTER SET utf8")
+@
+
+Primero buscamos en la base de datos la información sobre todas las mediciones realizadas. Guardamos por separado las mediciones hechas con Vernier y aquellas hechas con programas de manipulación de imágenes (en este caso \texttt{GIMP}).
+
+<<eval=TRUE, echo=TRUE>>=
+prg <- paste("SELECT m.cdg_ejemplar as cdg,j.cdg_especie as cdge,",
+             "CONCAT(e.genero,' ',e.especie) as spp,",
+             "l.NM,l.CN,l.lat,",
+             "l.lon,YEAR(t.fecha1) as YR, metodo_medicion,",
+             "medido_por, variable, valor",
+             "FROM MEDICIONES_EJEMPLARES m",
+             "LEFT JOIN EJEMPLARES j ON j.cdg_ejemplar=m.cdg_ejemplar",
+             "LEFT JOIN ESPECIE e ON j.cdg_especie=e.cdg_taxon",
+             "LEFT JOIN VISITAS t on j.cdg_tvn=t.cdg_tvn",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+             "WHERE metodo_medicion='Vernier'",
+             sep=" ")
+dat.vernier <- dbGetQuery(c.nm1,prg)
+
+
+@ 
+
+Seleccionamos las especies con más de 30 mediciones y buscamos toda la información sobre distribución y abundancia.
+
+<<eval=TRUE,echo=TRUE>>=
+tt <- table(dat.vernier$cdge)
+spps <- names(tt)[tt>30]
+
+prg <- paste("SELECT j.cdg_especie as cdge,",
+             "CONCAT(e.genero,' ',e.especie) as spp,",
+             "l.NM,l.CN,l.lat,",
+             "l.lon,YEAR(t.fecha1) as YR",
+             "FROM EJEMPLARES j",
+             "LEFT JOIN ESPECIE e ON j.cdg_especie=e.cdg_taxon",
+             "LEFT JOIN VISITAS t on j.cdg_tvn=t.cdg_tvn",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+	     "WHERE j.cdg_especie IN",
+	     "(",paste("'",spps,"'",collapse=",",sep=""),")",
+             sep=" ")
+jmp <- dbGetQuery(c.nm1,prg)
+
+prg <- paste("SELECT TIME_TO_SEC(TIMEDIFF(t.fecha2,t.fecha1))/60 as dur,",
+             "l.NM,l.CN,l.lat,l.lon,YEAR(t.fecha1) as YR",
+             "FROM VISITAS t ",
+             "LEFT JOIN TRAMPAS v ON v.cdg_trampa=t.cdg_trampa",
+             "LEFT JOIN LOCALIDADES l on l.cdg_localidad=v.cdg_localidad",
+             sep=" ")
+sfrz <- dbGetQuery(c.nm1,prg)
+sfrz$sfrz <- sfrz$ncol*sfrz$dur
+
+head(jmp)
+head(sfrz)
+
+
+dbDisconnect(c.nm1)
+@
+
+\section{Análisis de datos}
+
+\subsection{Comparación métodos de medición}
+
+<<>>=
+load(file="~/NeoMapas/Rdata/scrbsolis.rda")
+## Oxysternon para Arlene
+tOxy <- aggregate(scrb.solis[,grep("Oxy",colnames(scrb.solis))],list(trampa=scrb.solis$Grp),sum)
+colSums(tOxy[,-1])
+colSums(tOxy[,-1]>0)
+
+##SCB00033-00007 *O festivum
+##SCB00033-00005 *O ebeninum
+length(unique(subset(scrb.BDV,cdg_taxon %in% "SCB00033-00007")[,"loc"]))
+length(unique(scrb.MIZA[grep("Oxysternon f",scrb.MIZA$nombre),"localidad"]))
+
+plot(vzla)
+ points(lat~lon,subset(scrb.BDV,cdg_taxon %in% "SCB00033-00007"))
+ points(lat~lon,subset(scrb.MIZA,grepl("Oxysternon f",scrb.MIZA$nombre)),col=2) 
+
+
+write.csv(file="NeoMapas_Oxysternon_festivum.csv",data.frame(spp="Oxysternon festivum",trmp.ll@coords[match(unique(scrb.solis$vst[scrb.solis$Oxysternon.festivum>0 | scrb.solis$Oxysternum.f..viridanum>0]),trmp.xy@data$vst),]),row.names = FALSE)
+
+write.csv(file="NeoMapas_Oxysternon_ebeninum.csv",data.frame(spp="Oxysternon ebeninum",trmp.ll@coords[match(unique(scrb.solis$vst[scrb.solis$Oxysternon.ebeninum>0]),trmp.xy@data$vst),]),row.names = FALSE)
+
+write.csv(file="RevisionLiteratura_Oxysternon.csv",subset(scrb.BDV,grepl("Oxys",nombre)),row.names = FALSE)
+write.csv(file="RevisionMuseoMIZA_Oxysternon.csv",subset(scrb.MIZA,grepl("Oxys",nombre)),row.names = FALSE)
+
+sfrz <- merge(aggregate(trmp.ll$sfrz,list(vst=trmp.ll$vst),sum,na.rm=T),
+         aggregate(trmp.ll@coords,list(vst=trmp.ll$vst),median,na.rm=T),by="vst")
+colnames(sfrz) <- c("codigo trampa","horas.trampa","lon","lat")
+
+write.csv(file="NeoMapas_esfuerzoMuestreoScrb.csv",
+          sfrz,row.names = FALSE)
+
+system("zip ScrbNeoMapasParaArlene.zip NeoMapas_esfuerzoMuestreoScrb.csv NeoMapas_Oxysternon_festivum.csv RevisionLiteratura_Oxysternon.csv NeoMapas_Oxysternon_ebeninum.csv RevisionMuseoMIZA_Oxysternon.csv")
+
+@ 
+
+\subsection{Diferencias entre transectas}
+
+\section{Resultados}
+
+\section{Análisis}
+
+\section{Recomendaciones}
+
+
+<<Ateuchus>>=
+
+## 300 individuos en el IVIC! y un ind en Aroa
+Cnth.NM <- aggregate(scrb.solis[,grep("Canthonella",colnames(scrb.solis))],list(NM=scrb.solis$NM,yr=scrb.solis$yr),sum)
+
+ss <- scrb.solis$NM %in% "97" & scrb.solis$yr %in% "08"
+mtz <- tapply(scrb.solis[ss,grep("Canthonella",colnames(scrb.solis))],list(vst=scrb.solis$Grp[ss],scrb.solis$Fecha[ss]),sum)
+
+colSums(mtz,na.rm=T)
+rowSums(mtz,na.rm=T)
+
+mtz <- tapply(scrb.solis[ss,grep("Canthonella",colnames(scrb.solis))],list(vst=scrb.solis$vst[ss],scrb.solis$Fecha[ss]),sum)
+
+
+Crypto.NM <- aggregate(scrb.solis[,grep("Cryptocanthon",colnames(scrb.solis))],list(NM=scrb.solis$NM,yr=scrb.solis$yr),sum)
+
+Ateuchus.NM <- aggregate(scrb.solis[,grep("Ateuchus",colnames(scrb.solis))],list(NM=scrb.solis$NM,yr=scrb.solis$yr),sum)
+
+dts <- (Ateuchus.NM[,-(1:2)])
+rownames(dts) <- paste(Ateuchus.NM$NM,Ateuchus.NM$yr)
+dts <- dts[rowSums(dts)>0,]
+
+plot(rda(dts))
+dts[rev(order(rowSums(dts))),rev(order(colSums(dts)))]
+
+
+@ 
+\end{document}
